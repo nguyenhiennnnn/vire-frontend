@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="64" fill="#DBEAFE"/>
+
+  <!-- Body (torso) -->
+  <ellipse cx="64" cy="110" rx="34" ry="22" fill="#93C5FD"/>
+
+  <!-- Head -->
+  <circle cx="64" cy="50" r="22" fill="#93C5FD"/>
+
+  <!-- Clip to circle so body doesn't overflow -->
+  <clipPath id="av">
+    <circle cx="64" cy="64" r="64"/>
+  </clipPath>
+  <ellipse cx="64" cy="112" rx="36" ry="24" fill="#93C5FD" clip-path="url(#av)"/>
+</svg>

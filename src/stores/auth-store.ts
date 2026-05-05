@@ -1,0 +1,31 @@
+import { create } from "zustand";
+import type { User } from "../types";
+
+interface AuthState {
+  user: User | null;
+  accessToken: string | null;
+  isAuthenticated: boolean;
+
+  setAuth: (user: User, accessToken: string) => void;
+  setAccessToken: (token: string) => void;
+  updateUser: (partial: Partial<User>) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  accessToken: null,
+  isAuthenticated: false,
+
+  setAuth: (user, accessToken) =>
+    set({ user, accessToken, isAuthenticated: true }),
+
+  setAccessToken: (accessToken) => set({ accessToken }),
+
+  updateUser: (partial) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...partial } : null,
+    })),
+
+  logout: () => set({ user: null, accessToken: null, isAuthenticated: false }),
+}));

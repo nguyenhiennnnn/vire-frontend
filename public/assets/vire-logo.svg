@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Vire — Logo ngang (horizontal lockup)
+  Kích thước: 220 × 56px
+  Màu nền: trong suốt
+  Dùng font: Inter, DM Sans, hoặc bất kỳ geometric sans nào
+-->
+<svg
+  width="220"
+  height="56"
+  viewBox="0 0 220 56"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <defs>
+    <linearGradient id="iconBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1E40AF"/>
+    </linearGradient>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- ─── Icon mark ────────────────────────────── -->
+  <rect x="0" y="4" width="48" height="48" rx="12" fill="url(#iconBg)"/>
+
+  <!-- V path scaled to 48×48 artboard offset by (0,4) -->
+  <path
+    d="M10.5 17 L24 44.5 L37.5 17"
+    stroke="white"
+    stroke-width="5.5"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Accent dot -->
+  <circle cx="37.5" cy="17" r="6.5" fill="#93C5FD"/>
+  <circle cx="37.5" cy="17" r="3" fill="white"/>
+
+  <!-- ─── Wordmark ──────────────────────────────── -->
+  <!--
+    Lý tưởng dùng Inter 700 hoặc DM Sans 700.
+    Fallback: Arial Bold.
+    Thay bằng outlined path nếu cần đảm bảo font.
+  -->
+  <text
+    x="62"
+    y="39"
+    font-family="'Inter', 'DM Sans', 'Helvetica Neue', Arial, sans-serif"
+    font-size="32"
+    font-weight="700"
+    fill="#1E40AF"
+    letter-spacing="-1"
+  >Vire</text>
+</svg>

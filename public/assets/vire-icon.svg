@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1E40AF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+
+  <!-- V mark — bold, round linecaps -->
+  <path
+    d="M14 15 L32 48 L50 15"
+    stroke="white"
+    stroke-width="6.5"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Accent dot — connection / notification indicator, top-right of V -->
+  <circle cx="50" cy="15" r="8" fill="#93C5FD"/>
+  <circle cx="50" cy="15" r="3.5" fill="white"/>
+</svg>
