@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { io, Socket } from "socket.io-client";
-import { usePresenceStore } from "./presence-store";
+
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ??
+  import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, "");
 
 interface SocketState {
   socket: Socket | null;
@@ -12,29 +15,31 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
 
   connect: (token) => {
-    if (get().socket?.connected) return;
+    const current = get().socket;
+    if (current?.connected) return;
 
-    const socket = io(import.meta.env.VITE_API_URL, {
+    // Cleanup socket cũ
+    if (current) {
+      current.removeAllListeners();
+      current.disconnect();
+    }
+
+    const socket = io(SOCKET_URL, {
       auth: { token },
       withCredentials: true,
-    });
-
-    const { setOnline, setOffline } = usePresenceStore.getState();
-
-    socket.on("user:online", ({ userId }: { userId: string }) => {
-      setOnline(userId);
-    });
-
-    socket.on("user:offline", ({ userId }: { userId: string }) => {
-      setOffline(userId);
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000,
     });
 
     set({ socket });
   },
 
   disconnect: () => {
-    get().socket?.disconnect();
-    usePresenceStore.getState().clear();
+    const current = get().socket;
+    if (current) {
+      current.removeAllListeners();
+      current.disconnect();
+    }
     set({ socket: null });
   },
 }));
