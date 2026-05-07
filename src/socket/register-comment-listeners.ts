@@ -42,10 +42,10 @@ const patchPostCommentCount = (
 export const registerCommentListeners = ({ socket, qc }: Deps) => {
   socket.on(
     "comment:new",
-    ({ postId, comment, commentsCount }: CommentNewPayload) => {
+    ({ postId, comment, commentsCount, parentId }: CommentNewPayload) => {
       patchPostCommentCount(qc, postId, commentsCount);
 
-      if (!comment.parentId) {
+      if (!parentId) {
         qc.setQueryData<InfiniteData<PaginatedResponse<Comment>>>(
           ["comments", postId],
           (old) => {
@@ -61,16 +61,15 @@ export const registerCommentListeners = ({ socket, qc }: Deps) => {
           },
         );
       } else {
-        qc.setQueryData<{ replies: Comment[] }>(
-          ["replies", comment.parentId],
-          (old) => (old ? { replies: [...old.replies, comment] } : old),
+        qc.setQueryData<{ replies: Comment[] }>(["replies", parentId], (old) =>
+          old ? { replies: [...old.replies, comment] } : old,
         );
         qc.setQueryData<InfiniteData<PaginatedResponse<Comment>>>(
           ["comments", postId],
           (old) =>
             patchInfinitePages(old, (items) =>
               items.map((c) =>
-                c.id === comment.parentId && c._count
+                c.id === parentId && c._count
                   ? { ...c, _count: { replies: c._count.replies + 1 } }
                   : c,
               ),
