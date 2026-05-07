@@ -1,6 +1,11 @@
 import type { Socket } from "socket.io-client";
 import type { QueryClient, InfiniteData } from "@tanstack/react-query";
-import type { Post, PaginatedResponse, ReactionType } from "../types";
+import type {
+  Post,
+  PaginatedResponse,
+  ReactionType,
+  ReactionSummary,
+} from "../types";
 import type { ReactionUpdatedPayload } from "./types";
 import { patchInfinitePages } from "./utils";
 
@@ -49,7 +54,7 @@ export const registerReactionListeners = ({ socket, qc, myId }: Deps) => {
       patchFeed,
     );
 
-    qc.setQueryData(
+    qc.setQueryData<ReactionSummary>(
       ["reaction-summary", postId],
       (old: { myReaction: ReactionType | null } | undefined) => ({
         total,

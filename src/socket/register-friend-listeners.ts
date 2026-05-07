@@ -262,7 +262,7 @@ export const registerFriendListeners = ({
           ["friendship-requests"],
           (old) =>
             patchInfinitePages(old, (items) =>
-              items.filter((f: any) => f.sender?.id !== targetId),
+              items.filter((f) => f.sender?.id !== targetId),
             ),
         );
       }
@@ -271,7 +271,7 @@ export const registerFriendListeners = ({
           ["friendship-sent"],
           (old) =>
             patchInfinitePages(old, (items) =>
-              items.filter((f: any) => f.receiver?.id !== targetId),
+              items.filter((f) => f.receiver?.id !== targetId),
             ),
         );
       }
@@ -306,7 +306,7 @@ export const registerFriendListeners = ({
           ["friendship-sent"],
           (old) =>
             patchInfinitePages(old, (items) =>
-              items.filter((f: any) => f.receiver?.id !== actorId),
+              items.filter((f) => f.receiver?.id !== actorId),
             ),
         );
       }
@@ -317,7 +317,7 @@ export const registerFriendListeners = ({
           ["friendship-requests"],
           (old) =>
             patchInfinitePages(old, (items) =>
-              items.filter((f: any) => f.sender?.id !== actorId),
+              items.filter((f) => f.sender?.id !== actorId),
             ),
         );
       }

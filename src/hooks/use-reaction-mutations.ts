@@ -6,7 +6,12 @@ import {
 } from "@tanstack/react-query";
 import { reactionsApi } from "../services/api-services";
 import { toast } from "sonner";
-import type { PaginatedResponse, Post, ReactionType } from "../types";
+import type {
+  PaginatedResponse,
+  Post,
+  ReactionSummary,
+  ReactionType,
+} from "../types";
 import { patchInfinitePages } from "../socket/utils";
 
 export const useReactionMutation = (post: Post) => {
@@ -56,35 +61,39 @@ export const useReactionMutation = (post: Post) => {
           items.map((p) => (p.id === post.id ? patchPost(p) : p)),
         );
 
-      qc.setQueryData(["feed"], patchFeed);
+      qc.setQueryData<InfiniteData<PaginatedResponse<Post>>>(
+        ["feed"],
+        patchFeed,
+      );
       qc.setQueriesData<InfiniteData<PaginatedResponse<Post>>>(
         { queryKey: ["user-posts"] },
         patchFeed,
       );
 
-      qc.setQueryData(["reaction-summary", post.id], (old: any) =>
-        old
-          ? {
-              ...old,
-              total: old.total + delta,
-              myReaction: reactionType,
-              byType: {
-                ...old.byType,
-                ...(myReaction
-                  ? {
-                      [myReaction]: Math.max(
-                        0,
-                        (old.byType[myReaction] ?? 0) - 1,
-                      ),
-                    }
-                  : {}),
-                ...(reactionType
-                  ? { [reactionType]: (old.byType[reactionType] ?? 0) + 1 }
-                  : {}),
-              },
-            }
-          : old,
-      );
+      qc.setQueryData<ReactionSummary>(["reaction-summary", post.id], (old) => {
+        const base = old ?? {
+          total: 0,
+          myReaction: null,
+          byType: { LIKE: 0, LOVE: 0, HAHA: 0, WOW: 0, SAD: 0, ANGRY: 0 },
+        };
+
+        return {
+          ...base,
+          total: base.total + delta,
+          myReaction: reactionType,
+          byType: {
+            ...base.byType,
+            ...(myReaction
+              ? {
+                  [myReaction]: Math.max(0, (base.byType[myReaction] ?? 0) - 1),
+                }
+              : {}),
+            ...(reactionType
+              ? { [reactionType]: (base.byType[reactionType] ?? 0) + 1 }
+              : {}),
+          },
+        };
+      });
 
       return { snapPost, snapFeed };
     },
