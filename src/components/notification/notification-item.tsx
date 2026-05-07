@@ -29,8 +29,7 @@ export const NotificationItem = ({ notification }: Props) => {
 
   const markRead = useMarkReadMutation(notification.id);
   const deleteMutation = useDeleteNotificationMutation(
-    notification.id,
-    notification.isRead,
+    notification.id
   );
 
   const handleClick = () => {
