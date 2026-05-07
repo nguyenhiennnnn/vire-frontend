@@ -17,11 +17,7 @@ export const useFollowMutation = ({
       isFollowing
         ? followersApi.unfollow(profileId)
         : followersApi.follow(profileId),
-    onSuccess: () => {
-      // follow:new_follower / follow:lost_follower socket events handle cache update
-      toast.info(isFollowing ? "Đã bỏ theo dõi" : "Đã theo dõi");
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
   });
 };

@@ -12,11 +12,7 @@ export const useSendRequestMutation = ({
 }) => {
   return useMutation({
     mutationFn: () => friendshipsApi.sendRequest(profile.id),
-    onSuccess: () => {
-      // friend:request socket event notifies receiver
-      toast.info(`Đã gửi lời mời đến ${profile.username}`);
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
   });
 };
@@ -30,11 +26,7 @@ export const useCancelRequestMutation = ({
 }) => {
   return useMutation({
     mutationFn: () => friendshipsApi.cancel(profile.id),
-    onSuccess: () => {
-      // friend:cancelled socket event notifies receiver
-      toast.info(`Đã huỷ lời mời gửi đến ${profile.username}`);
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
   });
 };
@@ -48,11 +40,7 @@ export const useAcceptRequestMutation = ({
 }) => {
   return useMutation({
     mutationFn: () => friendshipsApi.accept(senderId),
-    onSuccess: () => {
-      // friend:accepted socket event handles cache update for both sides
-      toast.success("Đã chấp nhận lời mời");
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
   });
 };
@@ -66,11 +54,7 @@ export const useRejectRequestMutation = ({
 }) => {
   return useMutation({
     mutationFn: () => friendshipsApi.reject(senderId),
-    onSuccess: () => {
-      // friend:rejected socket event notifies sender
-      toast.info("Đã từ chối lời mời");
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
   });
 };
@@ -78,9 +62,6 @@ export const useRejectRequestMutation = ({
 export const useUnfriendMutation = () => {
   return useMutation({
     mutationFn: (userId: string) => friendshipsApi.unfriend(userId),
-    onSuccess: () => {
-      // friend:removed socket event handles cache update for both sides
-    },
     onError: (err: any) =>
       toast.error(getApiError(err, "Huỷ kết bạn thất bại")),
   });
@@ -95,11 +76,7 @@ export const useBlockMutation = ({
 }) => {
   return useMutation({
     mutationFn: () => friendshipsApi.block(profileId),
-    onSuccess: () => {
-      // friend:blocked socket event handles cache update for both sides
-      toast.info("Đã chặn người dùng");
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
   });
 };
@@ -113,11 +90,7 @@ export const useUnblockMutation = ({
 }) => {
   return useMutation({
     mutationFn: () => friendshipsApi.unblock(profileId),
-    onSuccess: () => {
-      // friend:unblocked socket event updates actor's cache
-      toast.info("Đã huỷ chặn người dùng");
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Thao tác thất bại")),
   });
 };

@@ -61,8 +61,8 @@ export const registerCommentListeners = ({ socket, qc }: Deps) => {
           },
         );
       } else {
-        qc.setQueryData<{ replies: Comment[] }>(["replies", parentId], (old) =>
-          old ? { replies: [...old.replies, comment] } : old,
+        qc.setQueryData<Comment[]>(["replies", parentId], (old) =>
+          old ? [...old, comment] : old,
         );
         qc.setQueryData<InfiniteData<PaginatedResponse<Comment>>>(
           ["comments", postId],
@@ -99,13 +99,11 @@ export const registerCommentListeners = ({ socket, qc }: Deps) => {
             ),
         );
       } else {
-        qc.setQueryData<{ replies: Comment[] }>(["replies", parentId], (old) =>
+        qc.setQueryData<Comment[]>(["replies", parentId], (old) =>
           old
-            ? {
-                replies: old.replies.map((r) =>
-                  r.id === commentId ? { ...r, content, updatedAt } : r,
-                ),
-              }
+            ? old.map((r) =>
+                r.id === commentId ? { ...r, content, updatedAt } : r,
+              )
             : old,
         );
       }
@@ -126,12 +124,9 @@ export const registerCommentListeners = ({ socket, qc }: Deps) => {
             ),
         );
       } else {
-        qc.setQueryData<{ replies: Comment[] }>(["replies", parentId], (old) =>
-          old
-            ? { replies: old.replies.filter((r) => r.id !== commentId) }
-            : old,
+        qc.setQueryData<Comment[]>(["replies", parentId], (old) =>
+          old ? old.filter((r) => r.id !== commentId) : old,
         );
-        // Decrement reply count on parent comment
         qc.setQueryData<InfiniteData<PaginatedResponse<Comment>>>(
           ["comments", postId],
           (old) =>

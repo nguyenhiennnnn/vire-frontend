@@ -19,10 +19,7 @@ export const useCreatePostMutation = ({
         mediaUrls: data.mediaUrls,
         privacy: data.privacy,
       }),
-    onSuccess: () => {
-      toast.success("Đã đăng bài viết");
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Đăng bài thất bại")),
   });
 };
@@ -40,11 +37,7 @@ export const useUpdatePostMutation = ({
         content: data.plainText.trim() ? data.html : undefined,
         privacy: data.privacy,
       }),
-    onSuccess: () => {
-      // post:updated socket event handles cache update
-      toast.success("Đã cập nhật bài viết");
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Cập nhật thất bại")),
   });
 };
@@ -59,11 +52,7 @@ export const useDeletePostMutation = ({
 }) => {
   return useMutation({
     mutationFn: () => postsApi.delete(postId),
-    onSuccess: () => {
-      // post:deleted socket event handles cache update
-      toast.success("Đã xoá bài viết");
-      onSuccess?.();
-    },
+    onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Xoá bài viết thất bại")),
   });
 };
