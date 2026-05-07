@@ -23,14 +23,15 @@ export const useCreateCommentMutation = ({
 };
 
 export const useUpdateCommentMutation = ({
+  commentId,
   onSuccess,
 }: {
-  postId: string; // giữ prop để không break callsite
+  postId?: string;
   commentId: string;
   onSuccess?: () => void;
 }) => {
   return useMutation({
-    mutationFn: (content: string) => commentsApi.update(content, content),
+    mutationFn: (content: string) => commentsApi.update(commentId, content),
     onSuccess: () => onSuccess?.(),
     onError: (err) => toast.error(getApiError(err, "Sửa bình luận thất bại")),
   });
@@ -39,7 +40,7 @@ export const useUpdateCommentMutation = ({
 export const useDeleteCommentMutation = ({
   onSuccess,
 }: {
-  postId: string; // giữ prop để không break callsite
+  postId?: string;
   parentCommentId?: string;
   onSuccess?: () => void;
 }) => {

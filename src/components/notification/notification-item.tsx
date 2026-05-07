@@ -4,7 +4,6 @@ import { Trash2 } from "lucide-react";
 import { UserAvatar } from "../shared/user-avatar";
 import { fromNow, getNotifText, getNotifTarget, cn } from "../../lib/utils";
 import type { Notification } from "../../types";
-import { useNotificationStore } from "../../stores/notification-store";
 import {
   useMarkReadMutation,
   useDeleteNotificationMutation,
@@ -26,7 +25,6 @@ interface Props {
 
 export const NotificationItem = ({ notification }: Props) => {
   const navigate = useNavigate();
-  const { decrementUnread } = useNotificationStore();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const markRead = useMarkReadMutation(notification.id);
@@ -37,7 +35,6 @@ export const NotificationItem = ({ notification }: Props) => {
 
   const handleClick = () => {
     if (!notification.isRead) {
-      decrementUnread();
       markRead.mutate();
     }
     navigate(getNotifTarget(notification));

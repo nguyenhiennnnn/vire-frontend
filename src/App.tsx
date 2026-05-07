@@ -3,9 +3,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { queryClient } from "./lib/query-client";
-import { useSocket } from "./hooks/use-socket";
-import { useBootstrap } from "./hooks/use-bootstrap";
-
+import { ThemeProvider } from "./components/theme-provider";
+import { AppBootstrap } from "./components/shared/app-bootstrap";
+import { SocketProvider } from "./components/shared/socket-provider";
 import { MainLayout } from "./components/layout/main-layout";
 import {
   ProtectedRoute,
@@ -16,7 +16,7 @@ import LoginPage from "./pages/auth/login-page";
 import RegisterPage from "./pages/auth/register-page";
 import VerifyEmailPage from "./pages/auth/verify-email-page";
 import ForgotPasswordPage from "./pages/auth/forgot-password-page";
-
+import OAuthCallbackPage from "./pages/oauth/oauth-callback-page";
 import LandingPage from "./pages/landing-page";
 import FeedPage from "./pages/feed-page";
 import ProfilePage from "./pages/profile-page";
@@ -25,23 +25,6 @@ import NotificationsPage from "./pages/notifications-page";
 import PostDetailPage from "./pages/post-detail-page";
 import SettingsPage from "./pages/settings-page";
 import NotFoundPage from "./pages/not-found-page";
-import { ThemeProvider } from "./components/theme-provider";
-import OAuthCallbackPage from "./pages/oauth/oauth-callback-page";
-
-function AppBootstrap({ children }: { children: React.ReactNode }) {
-  const { isReady } = useBootstrap();
-  useSocket();
-
-  if (!isReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-      </div>
-    );
-  }
-
-  return <>{children}</>;
-}
 
 export default function App() {
   return (
@@ -58,9 +41,7 @@ export default function App() {
                   </GuestRoute>
                 }
               />
-
               <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
-
               <Route
                 path="/login"
                 element={
@@ -77,9 +58,7 @@ export default function App() {
                   </GuestRoute>
                 }
               />
-
               <Route path="/verify-email" element={<VerifyEmailPage />} />
-
               <Route
                 path="/forgot-password"
                 element={
@@ -92,7 +71,9 @@ export default function App() {
               <Route
                 element={
                   <ProtectedRoute>
-                    <MainLayout />
+                    <SocketProvider>
+                      <MainLayout />
+                    </SocketProvider>
                   </ProtectedRoute>
                 }
               >

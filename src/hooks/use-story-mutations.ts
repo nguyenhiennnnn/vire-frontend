@@ -10,6 +10,7 @@ export const useCreateStoryMutation = ({
     mutationFn: ({ file, caption }: { file: File; caption?: string }) =>
       storiesApi.create(file, caption),
     onSuccess: () => {
+      // story:new socket event updates friends' story tray cache
       toast.success("Đã đăng story");
       onSuccess?.();
     },
@@ -19,15 +20,21 @@ export const useCreateStoryMutation = ({
 
 export const useDeleteStoryMutation = ({
   onSuccess,
-}: {
-  onSuccess?: () => void;
-}) => {
+}: { onSuccess?: () => void } = {}) => {
   return useMutation({
     mutationFn: (storyId: string) => storiesApi.delete(storyId),
     onSuccess: () => {
+      // story:removed_from_tray socket event handles cache update
       toast.success("Đã xoá story");
       onSuccess?.();
     },
     onError: (err) => toast.error(getApiError(err, "Xoá story thất bại")),
+  });
+};
+
+export const useRecordViewMutation = () => {
+  return useMutation({
+    mutationFn: (storyId: string) => storiesApi.recordView(storyId),
+    // story:viewed socket event notifies story owner — no local cache needed
   });
 };

@@ -1,8 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
-// ─── Update profile ───────────────────────────────────────
 import { usersApi } from "../services/api-services";
 import { getApiError } from "../lib/get-api-error";
 import { useAuth } from "./use-auth";
@@ -27,6 +25,7 @@ export const useEditProfileMutation = ({
       }),
     onSuccess: (updatedUser) => {
       updateUser({ username: updatedUser.username, bio: updatedUser.bio });
+      // invalidate vì updateMe không trả về đủ fields để setQueryData profile
       qc.invalidateQueries({ queryKey: ["profile", profile.id] });
       onSuccess?.();
       toast.success("Đã cập nhật thông tin");
@@ -38,38 +37,6 @@ export const useEditProfileMutation = ({
   });
 };
 
-// ─── Deactivate account ───────────────────────────────────
-export const useDeactivateMutation = () => {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-
-  return useMutation({
-    mutationFn: usersApi.deactivate,
-    onSuccess: async () => {
-      await logout();
-      navigate("/login");
-    },
-    onError: (err: any) =>
-      toast.error(getApiError(err, "Vô hiệu hoá thất bại")),
-  });
-};
-
-// ─── Delete account ───────────────────────────────────────
-export const useDeleteAccountMutation = () => {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-
-  return useMutation({
-    mutationFn: usersApi.deleteAccount,
-    onSuccess: async () => {
-      await logout();
-      navigate("/login");
-    },
-    onError: (err: any) =>
-      toast.error(getApiError(err, "Xoá tài khoản thất bại")),
-  });
-};
-
 export const useUpdateAvatarMutation = (id: string) => {
   const qc = useQueryClient();
   const { updateUser } = useAuthStore();
@@ -78,6 +45,7 @@ export const useUpdateAvatarMutation = (id: string) => {
     mutationFn: (file: File) => usersApi.updateAvatar(file),
     onSuccess: ({ avatarUrl }) => {
       updateUser({ avatar: avatarUrl });
+      // invalidate vì profile page cần reload để lấy avatar mới
       qc.invalidateQueries({ queryKey: ["profile", id] });
       toast.success("Đã cập nhật ảnh đại diện");
     },
@@ -93,6 +61,7 @@ export const useUpdateCoverMutation = (id: string) => {
     mutationFn: (file: File) => usersApi.updateCover(file),
     onSuccess: ({ coverUrl }) => {
       updateUser({ coverPhoto: coverUrl });
+      // invalidate vì profile page cần reload để lấy cover mới
       qc.invalidateQueries({ queryKey: ["profile", id] });
       toast.success("Đã cập nhật ảnh bìa");
     },
@@ -107,13 +76,43 @@ export const useUpdateMeMutation = () => {
     mutationFn: (data: { username?: string; bio?: string }) =>
       usersApi.updateMe(data),
     onSuccess: () => {
+      // invalidate vì response không đủ để reconstruct ["me"] cache
       qc.invalidateQueries({ queryKey: ["me"] });
       toast.success("Đã lưu thay đổi");
     },
     onError: (err: any) => {
       const msg = getApiError(err, "Cập nhật thất bại");
-      if (msg.includes("Username")) toast.error("Username đã tồn tại");
-      else toast.error(msg);
+      toast.error(msg.includes("Username") ? "Username đã tồn tại" : msg);
     },
+  });
+};
+
+export const useDeactivateMutation = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: usersApi.deactivate,
+    onSuccess: async () => {
+      await logout();
+      navigate("/login");
+    },
+    onError: (err: any) =>
+      toast.error(getApiError(err, "Vô hiệu hoá thất bại")),
+  });
+};
+
+export const useDeleteAccountMutation = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: usersApi.deleteAccount,
+    onSuccess: async () => {
+      await logout();
+      navigate("/login");
+    },
+    onError: (err: any) =>
+      toast.error(getApiError(err, "Xoá tài khoản thất bại")),
   });
 };

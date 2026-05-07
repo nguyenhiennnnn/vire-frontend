@@ -32,7 +32,7 @@ export const ProfilePostsTab = ({ userId }: Props) => {
       {isLoading && <PostCardSkeleton />}
 
       {posts.map((p) => (
-        <PostCard key={p.id} post={p} userId={userId} />
+        <PostCard key={p.id} post={p} />
       ))}
 
       {isFetchingNextPage && <PostCardSkeleton />}

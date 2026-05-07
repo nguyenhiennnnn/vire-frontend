@@ -5,7 +5,6 @@ import { useAuth } from "./use-auth";
 import { getApiError } from "../lib/get-api-error";
 import { authApi } from "../services/api-services";
 
-// ─── Login ────────────────────────────────────────────────
 export const useLoginMutation = ({
   from,
   setUnverifiedEmail,
@@ -27,7 +26,6 @@ export const useLoginMutation = ({
     onError: (err: any) => {
       const msg = getApiError(err);
       const status: number = err?.response?.status ?? 0;
-
       if (status === 403 && msg.includes("xác thực")) {
         setUnverifiedEmail(
           err?.config?.data
@@ -44,7 +42,6 @@ export const useLoginMutation = ({
   });
 };
 
-// ─── Register ─────────────────────────────────────────────
 export const useRegisterMutation = ({
   onSuccess,
   setError,
@@ -65,12 +62,9 @@ export const useRegisterMutation = ({
   });
 };
 
-// ─── Resend verify email ───────────────────────────────────
 export const useResendVerifyMutation = ({
   onSuccess,
-}: {
-  onSuccess?: () => void;
-} = {}) => {
+}: { onSuccess?: () => void } = {}) => {
   return useMutation({
     mutationFn: (email: string) => authApi.resendVerify(email),
     onSuccess: () => {
@@ -82,7 +76,6 @@ export const useResendVerifyMutation = ({
   });
 };
 
-// ─── Forgot password ──────────────────────────────────────
 export const useForgotPasswordMutation = ({
   onSuccess,
 }: {
@@ -95,7 +88,6 @@ export const useForgotPasswordMutation = ({
   });
 };
 
-// ─── Verify OTP ───────────────────────────────────────────
 export const useVerifyOtpMutation = ({
   email,
   onSuccess,
@@ -116,7 +108,6 @@ export const useVerifyOtpMutation = ({
   });
 };
 
-// ─── Reset password ───────────────────────────────────────
 export const useResetPasswordMutation = ({
   resetToken,
   onExpired,
@@ -141,7 +132,6 @@ export const useResetPasswordMutation = ({
   });
 };
 
-// ─── Change password ──────────────────────────────────────
 export const useChangePasswordMutation = ({
   setError,
   onSuccess,
@@ -165,7 +155,6 @@ export const useChangePasswordMutation = ({
   });
 };
 
-// ─── Verify email token ───────────────────────────────────
 export const useVerifyEmailMutation = (token: string) => {
   return useMutation({
     mutationFn: () => authApi.verifyEmail(token),

@@ -64,9 +64,9 @@ export const StoriesBar = () => {
 
       <AddStoryDialog open={addOpen} onClose={() => setAddOpen(false)} />
 
-      {storyGroups.length > 0 && (
+      {viewerOpen && storyGroups.length > 0 && (
         <StoryViewer
-          key={`${viewerOpen}-${viewerStartIndex}`}
+          key={viewerStartIndex}
           open={viewerOpen}
           onClose={() => setViewerOpen(false)}
           groups={storyGroups}

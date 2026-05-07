@@ -1,17 +1,15 @@
 import { create } from "zustand";
-import type { Notification } from "../types";
 
 interface NotificationState {
   unreadCount: number;
-  realtimeItems: Notification[];
   friendRequestCount: number;
 
   setUnreadCount: (n: number) => void;
-  incrementUnread: () => void;
-  decrementUnread: (by?: number) => void;
-  addNotification: (notif: Notification) => void;
-  markRead: (id: string) => void;
-  markAllRead: () => void;
+  increment: () => void;
+  decrement: (by?: number) => void;
+  markRead: (id: string) => void; // kept for mutation callsite compat (store-only, not cache)
+  markAllRead: () => void; // kept for mutation callsite compat
+
   setFriendRequestCount: (n: number) => void;
   incrementFriendRequest: () => void;
   decrementFriendRequest: () => void;
@@ -19,31 +17,20 @@ interface NotificationState {
 
 export const useNotificationStore = create<NotificationState>((set) => ({
   unreadCount: 0,
-  realtimeItems: [],
   friendRequestCount: 0,
 
   setUnreadCount: (n) => set({ unreadCount: n }),
 
-  incrementUnread: () => set((s) => ({ unreadCount: s.unreadCount + 1 })),
+  increment: () => set((s) => ({ unreadCount: s.unreadCount + 1 })),
 
-  decrementUnread: (by = 1) =>
+  decrement: (by = 1) =>
     set((s) => ({ unreadCount: Math.max(0, s.unreadCount - by) })),
 
-  addNotification: (notif) =>
-    set((s) => ({ realtimeItems: [notif, ...s.realtimeItems] })),
+  // These only update the badge count — cache is handled by socket handler
+  markRead: (_id) =>
+    set((s) => ({ unreadCount: Math.max(0, s.unreadCount - 1) })),
 
-  markRead: (id) =>
-    set((s) => ({
-      realtimeItems: s.realtimeItems.map((n) =>
-        n.id === id ? { ...n, isRead: true } : n,
-      ),
-    })),
-
-  markAllRead: () =>
-    set((s) => ({
-      unreadCount: 0,
-      realtimeItems: s.realtimeItems.map((n) => ({ ...n, isRead: true })),
-    })),
+  markAllRead: () => set({ unreadCount: 0 }),
 
   setFriendRequestCount: (n) => set({ friendRequestCount: n }),
 

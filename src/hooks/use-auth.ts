@@ -1,5 +1,4 @@
 import { useAuthStore } from "../stores/auth-store";
-import { useSocketStore } from "../stores/socket-store";
 import { authApi } from "../services/api-services";
 import { queryClient } from "../lib/query-client";
 import type { User } from "../types";
@@ -14,12 +13,8 @@ export const useAuth = () => {
     updateUser,
     logout: storeLogout,
   } = useAuthStore();
-  const { connect, disconnect } = useSocketStore();
 
-  const login = (user: User, token: string) => {
-    setAuth(user, token);
-    connect(token);
-  };
+  const login = (user: User, token: string) => setAuth(user, token);
 
   const logout = async () => {
     try {
@@ -28,7 +23,6 @@ export const useAuth = () => {
       // ignore — still clear local state
     }
     storeLogout();
-    disconnect();
     queryClient.clear();
   };
 

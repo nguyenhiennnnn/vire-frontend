@@ -18,6 +18,7 @@ export const useFollowMutation = ({
         ? followersApi.unfollow(profileId)
         : followersApi.follow(profileId),
     onSuccess: () => {
+      // follow:new_follower / follow:lost_follower socket events handle cache update
       toast.info(isFollowing ? "Đã bỏ theo dõi" : "Đã theo dõi");
       onSuccess?.();
     },

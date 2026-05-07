@@ -1,17 +1,28 @@
-import { useSocketConnection } from "./use-socket-connection";
-import { useSocketNotificationEvents } from "./use-socket-notification-events";
-import { useSocketPostEvents } from "./use-socket-post-events";
-import { useSocketStoryEvents } from "./use-socket-story-events";
-import { useSocketFriendEvents } from "./use-socket-friend-events";
-import { useSocketFollowEvents } from "./use-socket-follow-events";
-import { useSocketPresenceEvents } from "./use-socket-presence-events";
+import { useCallback } from "react";
+import { useSocketStore } from "../stores/socket-store";
 
 export const useSocket = () => {
-  useSocketConnection();
-  useSocketNotificationEvents();
-  useSocketPostEvents();
-  useSocketStoryEvents();
-  useSocketFriendEvents();
-  useSocketFollowEvents();
-  useSocketPresenceEvents();
+  const socket = useSocketStore((s) => s.socket);
+
+  const joinPostRoom = useCallback(
+    (postId: string) => socket?.emit("post:join", postId),
+    [socket],
+  );
+
+  const leavePostRoom = useCallback(
+    (postId: string) => socket?.emit("post:leave", postId),
+    [socket],
+  );
+
+  const joinStoryRoom = useCallback(
+    (storyId: string) => socket?.emit("story:join", storyId),
+    [socket],
+  );
+
+  const leaveStoryRoom = useCallback(
+    (storyId: string) => socket?.emit("story:leave", storyId),
+    [socket],
+  );
+
+  return { joinPostRoom, leavePostRoom, joinStoryRoom, leaveStoryRoom };
 };

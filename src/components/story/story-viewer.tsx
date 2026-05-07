@@ -19,6 +19,9 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { useDeleteStoryMutation } from "../../hooks/use-story-mutations";
+import { useSocket } from "../../hooks/use-socket";
+import { storyEvents } from "../../socket/register-story-listeners";
+import { useSocketStore } from "../../stores/socket-store";
 
 const STORY_DURATION = 5000;
 const TICK = 100;
@@ -37,6 +40,8 @@ export const StoryViewer = ({
   initialGroupIndex = 0,
 }: Props) => {
   const { user } = useAuth();
+  const { joinStoryRoom, leaveStoryRoom } = useSocket();
+  const { socket } = useSocketStore();
 
   const [groupIdx, setGroupIdx] = useState(initialGroupIndex);
   const [storyIdx, setStoryIdx] = useState(0);
@@ -75,6 +80,23 @@ export const StoryViewer = ({
       onClose();
     }
   }, [groupIdx, storyIdx, groups, onClose]);
+
+  useEffect(() => {
+    if (!currentStory?.id) return;
+    joinStoryRoom(currentStory.id);
+    return () => {
+      leaveStoryRoom(currentStory.id);
+    };
+  }, [currentStory?.id, joinStoryRoom, leaveStoryRoom, socket?.connected]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { storyId } = (e as CustomEvent<{ storyId: string }>).detail;
+      if (storyId === currentStory?.id) goNextRef.current();
+    };
+    storyEvents.addEventListener("story_deleted", handler);
+    return () => storyEvents.removeEventListener("story_deleted", handler);
+  }, [currentStory?.id]);
 
   useEffect(() => {
     videoDurationRef.current = STORY_DURATION;

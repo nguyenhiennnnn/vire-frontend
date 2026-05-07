@@ -1,43 +1,69 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import axios from "axios";
 import { useAuthStore } from "../stores/auth-store";
+import { usersApi, bootstrapApi } from "../services/api-services";
 import { useNotificationStore } from "../stores/notification-store";
-import { useSocketStore } from "../stores/socket-store";
-import { bootstrapApi } from "../services/api-services";
+import type { RefreshResponse } from "../types";
 
-export const useBootstrap = () => {
-  const [isReady, setIsReady] = useState(false);
-  const { setAuth } = useAuthStore();
-  const { setUnreadCount, setFriendRequestCount } = useNotificationStore();
-  const { connect } = useSocketStore();
+const BASE_URL = import.meta.env.VITE_API_URL as string;
+
+export function useBootstrap() {
+  const hasToken = useAuthStore.getState().accessToken;
+  const [isReady, setIsReady] = useState(!!hasToken);
+  const ranRef = useRef(false);
 
   useEffect(() => {
-    const restore = async () => {
-      try {
-        const token = await bootstrapApi.refresh();
-        const user = await bootstrapApi.getMe(token);
+    if (ranRef.current) return;
+    ranRef.current = true;
 
-        setAuth(user, token);
-        connect(token);
+    const existingToken = useAuthStore.getState().accessToken;
 
-        try {
-          const [unreadCount, friendRequestCount] = await Promise.all([
-            bootstrapApi.getUnreadCount(token),
-            bootstrapApi.getFriendRequestCount(token),
-          ]);
-          setUnreadCount(unreadCount);
-          setFriendRequestCount(friendRequestCount);
-        } catch {
-          // Non-critical — badges just start at 0
-        }
-      } catch {
-        // No valid session — ProtectedRoute will redirect to /login
-      } finally {
+    if (existingToken) {
+      // Token đã có sẵn → fetch counts luôn
+      const { setUnreadCount, setFriendRequestCount } =
+        useNotificationStore.getState();
+
+      Promise.all([
+        bootstrapApi.getUnreadCount(),
+        bootstrapApi.getFriendRequestCount(),
+      ]).then(([unread, friendReq]) => {
+        setUnreadCount(unread);
+        setFriendRequestCount(friendReq);
+      });
+
+      return;
+    }
+
+    axios
+      .post<RefreshResponse>(
+        `${BASE_URL}/auth/refresh`,
+        {},
+        { withCredentials: true },
+      )
+      .then(async ({ data }) => {
+        const newToken = data.accessToken;
+        useAuthStore.getState().setAccessToken(newToken);
+
+        const [user, unread, friendReq] = await Promise.all([
+          usersApi.getMe(),
+          bootstrapApi.getUnreadCount(),
+          bootstrapApi.getFriendRequestCount(),
+        ]);
+
+        useAuthStore.getState().setAuth(user, newToken);
+
+        const { setUnreadCount, setFriendRequestCount } =
+          useNotificationStore.getState();
+        setUnreadCount(unread);
+        setFriendRequestCount(friendReq);
+      })
+      .catch(() => {
+        useAuthStore.getState().logout();
+      })
+      .finally(() => {
         setIsReady(true);
-      }
-    };
-
-    restore();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+      });
+  }, []);
 
   return { isReady };
-};
+}

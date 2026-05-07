@@ -14,14 +14,12 @@ import { useReactionMutation } from "../../hooks/use-reaction-mutations";
 
 interface Props {
   post: Post;
-  userId?: string;
   inDetail?: boolean;
   onCommentClick?: () => void;
 }
 
 export const PostCardReactionBar = ({
   post,
-  userId,
   inDetail = false,
   onCommentClick,
 }: Props) => {
@@ -35,7 +33,7 @@ export const PostCardReactionBar = ({
     handleLikeClick,
     handlePickerSelect,
     clearLeaveTimer,
-  } = useReactionMutation(post, userId);
+  } = useReactionMutation(post);
 
   const handleCommentClick = () => {
     if (inDetail) onCommentClick?.();

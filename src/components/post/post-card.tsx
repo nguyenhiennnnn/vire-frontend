@@ -9,7 +9,6 @@ import type { Post } from "../../types";
 
 interface Props {
   post: Post;
-  userId?: string;
   variant?: "compact" | "full";
   onCommentClick?: () => void;
 }
@@ -63,7 +62,6 @@ function CommentFooter({ postId, count }: { postId: string; count: number }) {
 
 export const PostCard = ({
   post,
-  userId,
   variant = "compact",
   onCommentClick,
 }: Props) => {
@@ -102,7 +100,6 @@ export const PostCard = ({
 
           <PostCardReactionBar
             post={post}
-            userId={userId}
             inDetail={variant === "full"}
             onCommentClick={onCommentClick}
           />

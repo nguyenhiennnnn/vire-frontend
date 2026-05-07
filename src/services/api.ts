@@ -42,7 +42,8 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (original.url?.includes("/auth/")) {
+    const skipRefresh = ["/auth/login", "/auth/register", "/auth/refresh"];
+    if (skipRefresh.some((path) => original.url?.includes(path))) {
       return Promise.reject(error);
     }
 

@@ -1,17 +1,28 @@
 import { useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft } from "lucide-react";
-import { useSocketStore } from "../stores/socket-store";
 import { postsApi } from "../services/api-services";
 import { PostCardSkeleton } from "../components/shared/skeleton-card";
 import { PostCard } from "../components/post/post-card";
 import { CommentSection } from "../components/comment/comment-section";
+import { useSocket } from "../hooks/use-socket";
+import { useSocketStore } from "../stores/socket-store";
 
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const commentInputRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const { joinPostRoom, leavePostRoom } = useSocket();
   const { socket } = useSocketStore();
+  const commentInputRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    joinPostRoom(id);
+    return () => {
+      leavePostRoom(id);
+    };
+  }, [id, joinPostRoom, leavePostRoom, socket?.connected]);
 
   const {
     data: post,
@@ -24,12 +35,8 @@ export default function PostDetailPage() {
   });
 
   useEffect(() => {
-    if (!socket || !id) return;
-    socket.emit("join_post", id);
-    return () => {
-      socket.emit("leave_post", id);
-    };
-  }, [socket, id]);
+    if (!isLoading && !post && !error) navigate("/feed", { replace: true });
+  }, [post, isLoading, error]);
 
   const scrollToComments = () => {
     commentInputRef.current?.scrollIntoView({ behavior: "smooth" });

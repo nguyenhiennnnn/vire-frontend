@@ -18,7 +18,6 @@ import type {
   MessageResponse,
   Privacy,
   ReactionType,
-  RefreshResponse,
 } from "../types";
 
 // ─── Auth ─────────────────────────────────────────────────
@@ -122,7 +121,8 @@ export const postsApi = {
     content?: string;
     mediaUrls?: string[];
     privacy: Privacy;
-  }) => api.post<{ post: Post }>("/posts", data).then((r) => r.data.post),
+  }) =>
+    api.post<{ post: Post }>("/posts", data).then((r) => r.data.post),
 
   getFeed: (cursor?: string, limit = 10) =>
     api
@@ -394,33 +394,14 @@ export const storiesApi = {
 
 // ─── Bootstrap ────────────────────────────────────────────
 export const bootstrapApi = {
-  refresh: () =>
+  getUnreadCount: () =>
     api
-      .post<RefreshResponse>(`/auth/refresh`, {}, { withCredentials: true })
-      .then((r) => r.data.accessToken),
-
-  getMe: (token: string) =>
-    api
-      .get<{ user: User }>(`/users/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      })
-      .then((r) => r.data.user),
-
-  getUnreadCount: (token: string) =>
-    api
-      .get<{ count: number }>(`/notifications/unread-count`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      })
+      .get<{ count: number }>(`/notifications/unread-count`)
       .then((r) => r.data.count),
 
-  getFriendRequestCount: (token: string) =>
+  getFriendRequestCount: () =>
     api
-      .get<{ count: number }>(`/friendships/requests/count`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      })
+      .get<{ count: number }>(`/friendships/requests/count`)
       .then((r) => r.data.count),
 };
 
