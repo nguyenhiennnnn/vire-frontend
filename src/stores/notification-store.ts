@@ -7,8 +7,8 @@ interface NotificationState {
   setUnreadCount: (n: number) => void;
   increment: () => void;
   decrement: (by?: number) => void;
-  markRead: (id: string) => void; // kept for mutation callsite compat (store-only, not cache)
-  markAllRead: () => void; // kept for mutation callsite compat
+  markRead: (id: string) => void;
+  markAllRead: () => void;
 
   setFriendRequestCount: (n: number) => void;
   incrementFriendRequest: () => void;
@@ -26,7 +26,6 @@ export const useNotificationStore = create<NotificationState>((set) => ({
   decrement: (by = 1) =>
     set((s) => ({ unreadCount: Math.max(0, s.unreadCount - by) })),
 
-  // These only update the badge count — cache is handled by socket handler
   markRead: (_id) =>
     set((s) => ({ unreadCount: Math.max(0, s.unreadCount - 1) })),
 

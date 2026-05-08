@@ -14,7 +14,6 @@ import {
 } from "../../hooks/use-friendship-mutations";
 import { useAlertDialogStore } from "../../stores/alert-dialog-store";
 
-// ─── FriendRequestCard ────────────────────────────────────
 export const FriendRequestCard = ({
   friendship,
 }: {
@@ -94,7 +93,6 @@ export const FriendRequestCard = ({
   );
 };
 
-// ─── FriendSuggestionCard ─────────────────────────────────
 export const FriendSuggestionCard = ({
   suggestion,
   onDismiss,
@@ -156,7 +154,6 @@ export const FriendSuggestionCard = ({
   );
 };
 
-// ─── SentRequestCard — lời mời mình đã gửi, chờ đối phương ─
 export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
   const receiver = friendship.receiver!;
   const [cancelled, setCancelled] = useState(false);
@@ -220,7 +217,6 @@ export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
   );
 };
 
-// ─── FriendCard ───────────────────────────────────────────
 export const FriendCard = ({
   friend,
   onUnfriend,

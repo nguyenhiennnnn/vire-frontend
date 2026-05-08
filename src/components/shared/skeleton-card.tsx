@@ -8,7 +8,6 @@ const Shimmer = ({ className }: Props) => (
   <div className={cn("animate-pulse rounded-md bg-muted", className)} />
 );
 
-/** Skeleton for a PostCard while data loads */
 export const PostCardSkeleton = () => (
   <div className="rounded-xl border bg-card p-4 space-y-3">
     <div className="flex items-center gap-3">
@@ -28,7 +27,6 @@ export const PostCardSkeleton = () => (
   </div>
 );
 
-/** Skeleton for a user card (friend/follower/suggestion) */
 export const UserCardSkeleton = () => (
   <div className="flex items-center gap-3 p-3 rounded-lg border">
     <Shimmer className="w-12 h-12 rounded-full" />
@@ -40,7 +38,6 @@ export const UserCardSkeleton = () => (
   </div>
 );
 
-/** Skeleton for a notification item */
 export const NotificationSkeleton = () => (
   <div className="flex items-start gap-3 p-3">
     <Shimmer className="w-12 h-12 rounded-full shrink-0" />
@@ -52,7 +49,6 @@ export const NotificationSkeleton = () => (
   </div>
 );
 
-/** Generic block shimmer */
 export const BlockSkeleton = ({ className }: Props) => (
   <Shimmer className={cn("h-20 w-full rounded-lg", className)} />
 );

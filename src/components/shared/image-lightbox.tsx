@@ -71,7 +71,6 @@ export const ImageLightbox = ({
           </div>
         </div>
 
-        {/* Main image */}
         <div className="flex items-center justify-center w-full h-full">
           <img
             src={images[current]}
@@ -80,7 +79,6 @@ export const ImageLightbox = ({
           />
         </div>
 
-        {/* Prev / Next */}
         {images.length > 1 && (
           <>
             <button
@@ -98,7 +96,6 @@ export const ImageLightbox = ({
           </>
         )}
 
-        {/* Thumbnail strip */}
         {images.length > 1 && (
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 p-2 rounded-xl bg-black/40 backdrop-blur-sm">
             {images.map((src, i) => (

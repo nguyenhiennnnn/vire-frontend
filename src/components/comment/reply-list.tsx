@@ -66,7 +66,6 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
     });
   };
 
-  // ─── Loading ──────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="ml-10 flex items-center gap-2 py-2 text-xs text-muted-foreground">
@@ -76,7 +75,6 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
     );
   }
 
-  // ─── Error ────────────────────────────────────────────
   if (isError) {
     return (
       <div className="ml-10 py-2 text-xs text-destructive">
@@ -85,7 +83,6 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
     );
   }
 
-  // ─── Empty ────────────────────────────────────────────
   if (replies.length === 0) {
     return (
       <div className="ml-10 py-2 text-xs text-muted-foreground">
@@ -110,7 +107,6 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
               />
 
               <div className="flex-1 min-w-0">
-                {/* Content */}
                 {isEditing ? (
                   <div className="space-y-1.5">
                     <textarea
@@ -153,7 +149,6 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
                   </div>
                 )}
 
-                {/* Action row */}
                 <div className="flex items-center gap-2 px-1 mt-0.5 text-xs text-muted-foreground">
                   <span>{fromNow(reply.createdAt)}</span>
                   <button

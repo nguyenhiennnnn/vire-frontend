@@ -82,7 +82,6 @@ export default function FeedPage() {
     return () => feedEvents.removeEventListener("new_post", handler);
   }, [flushPending]);
 
-  // ── Infinite feed query ─────────────────────────────────────────────────────
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: ["feed"],

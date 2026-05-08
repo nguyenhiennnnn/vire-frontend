@@ -12,15 +12,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// ─── Date / time ─────────────────────────────────────────
-/** "5 phút trước", "2 giờ trước", ... */
 export const fromNow = (date: string | Date): string => dayjs(date).fromNow();
 
-/** Format full: "12:30 · 15/06/2025" */
 export const formatDateTime = (date: string | Date): string =>
   dayjs(date).format("HH:mm · DD/MM/YYYY");
 
-/** Check if a story is expired */
 export const isExpired = (expiresAt: string): boolean =>
   new Date(expiresAt) < new Date();
 
@@ -30,7 +26,6 @@ export const isVideo = (url: string): boolean => {
   return url.includes("/video/upload/");
 };
 
-// ─── Privacy helpers ──────────────────────────────────────
 export const PRIVACY_LABEL: Record<Privacy, string> = {
   PUBLIC: "Công khai",
   FRIENDS: "Bạn bè",
@@ -43,7 +38,6 @@ export const PRIVACY_ICON: Record<Privacy, string> = {
   ONLY_ME: "lock",
 };
 
-// ─── Reaction helpers ─────────────────────────────────────
 export const REACTION_EMOJI: Record<ReactionType, string> = {
   LIKE: "👍",
   LOVE: "❤️",
@@ -71,7 +65,6 @@ export const REACTION_COLOR: Record<ReactionType, string> = {
   ANGRY: "text-orange-500",
 };
 
-// ─── Notification helpers ─────────────────────────────────
 export const getNotifText = (type: NotifType, fromUsername: string): string => {
   const map: Record<NotifType, string> = {
     FRIEND_REQUEST: `${fromUsername} đã gửi lời mời kết bạn cho bạn`,
@@ -98,7 +91,6 @@ export const NOTIF_ICON: Record<NotifType, string> = {
 export const truncate = (str: string, n: number): string =>
   str.length > n ? str.slice(0, n) + "…" : str;
 
-/** Extract Cloudinary publicId from URL */
 export const extractPublicId = (url: string): string => {
   const parts = url.split("/upload/");
   if (parts.length < 2) return "";
@@ -106,7 +98,6 @@ export const extractPublicId = (url: string): string => {
   return withoutVersion.replace(/\.[^/.]+$/, "");
 };
 
-// ─── Password strength ────────────────────────────────────
 export type PasswordStrength = "weak" | "medium" | "strong";
 
 export const getPasswordStrength = (password: string): PasswordStrength => {
@@ -135,11 +126,9 @@ export const PASSWORD_STRENGTH_LABEL: Record<PasswordStrength, string> = {
   strong: "Mạnh",
 };
 
-// ─── URL helpers ──────────────────────────────────────────
 export const getProfileUrl = (id: string) => `/profile/${id}`;
 export const getPostUrl = (postId: string) => `/posts/${postId}`;
 
-/** Navigate target based on notification type + specific FK fields */
 export const getNotifTarget = (notif: {
   type: NotifType;
   postId: string | null;
@@ -159,8 +148,6 @@ export const getNotifTarget = (notif: {
   return getProfileUrl(notif.fromUser.id);
 };
 
-// ─── Array utils ──────────────────────────────────────────
-/** Remove duplicates by a key */
 export const uniqueBy = <T>(arr: T[], key: keyof T): T[] => {
   const seen = new Set();
   return arr.filter((item) => {
@@ -171,7 +158,6 @@ export const uniqueBy = <T>(arr: T[], key: keyof T): T[] => {
   });
 };
 
-// ─── File utils ───────────────────────────────────────────
 export const FILE_SIZE_LIMIT = {
   avatar: 5 * 1024 * 1024, // 5 MB
   cover: 10 * 1024 * 1024, // 10 MB

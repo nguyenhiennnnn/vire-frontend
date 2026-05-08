@@ -163,7 +163,6 @@ export const StoryViewer = ({
     queryKey: ["story-viewers", currentStory?.id],
     queryFn: () => storiesApi.getViewers(currentStory!.id),
     enabled: isOwn && !!currentStory?.id,
-    // refetchInterval: !isOwn || !currentStory?.id ? false : 5000,
   });
 
   const deleteStoryMutation = useDeleteStoryMutation({
@@ -191,11 +190,11 @@ export const StoryViewer = ({
   return (
     <>
       <div
-        className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+        className="dark fixed inset-0 z-50 bg-background/80 flex items-center justify-center"
         onClick={onClose}
       >
         <div
-          className="relative w-full max-w-sm h-full max-h-[90vh] overflow-hidden rounded-xl bg-black"
+          className="relative w-full max-w-sm h-full max-h-[90vh] overflow-hidden rounded-xl bg-background"
           onClick={(e) => e.stopPropagation()}
         >
           <StoryProgress
@@ -207,16 +206,16 @@ export const StoryViewer = ({
           <div className="absolute top-6 left-0 right-0 z-10 flex items-center gap-2 px-3 py-2">
             <UserAvatar user={currentGroup.user} size="sm" />
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium leading-none drop-shadow-md">
+              <p className="text-foreground text-sm font-medium leading-none drop-shadow-md">
                 {currentGroup.user.username}
               </p>
-              <p className="text-white/80 text-xs mt-0.5 drop-shadow-md">
+              <p className="text-muted-foreground text-xs mt-0.5 drop-shadow-md">
                 {fromNow(currentStory.createdAt)}
               </p>
             </div>
             {currentStory.mediaType === "VIDEO" && (
               <button
-                className="text-white p-1.5 rounded-full transition-colors bg-black/40 hover:bg-black/60 backdrop-blur-sm shadow"
+                className="text-foreground p-1.5 rounded-full transition-colors bg-card/40 hover:bg-card/60 backdrop-blur-sm shadow"
                 onClick={() => setMuted((m) => !m)}
                 title={muted ? "Bật tiếng" : "Tắt tiếng"}
               >
@@ -225,7 +224,7 @@ export const StoryViewer = ({
             )}
             {isOwn && (
               <button
-                className="text-white p-1.5 rounded-full transition-colors bg-black/40 hover:bg-black/60 backdrop-blur-sm shadow"
+                className="text-foreground p-1.5 rounded-full transition-colors bg-card/40 hover:bg-card/60 backdrop-blur-sm shadow"
                 onClick={handleDeleteStory}
                 disabled={deleteStoryMutation.isPending}
                 title="Xoá story"
@@ -234,7 +233,7 @@ export const StoryViewer = ({
               </button>
             )}
             <button
-              className="text-white p-1.5 rounded-full transition-colors bg-black/40 hover:bg-black/60 backdrop-blur-sm shadow"
+              className="text-foreground p-1.5 rounded-full transition-colors bg-card/40 hover:bg-card/60 backdrop-blur-sm shadow"
               onClick={onClose}
               title="Đóng"
             >
@@ -267,8 +266,8 @@ export const StoryViewer = ({
           )}
 
           {currentStory.caption && (
-            <div className="absolute bottom-8 left-0 right-0 px-4 py-3 bg-linear-to-t from-black/70 to-transparent">
-              <p className="text-white text-sm text-center drop-shadow">
+            <div className="absolute bottom-8 left-0 right-0 px-4 py-3 bg-linear-to-t from-background/70 to-transparent">
+              <p className="text-foreground text-sm text-center drop-shadow">
                 {currentStory.caption}
               </p>
             </div>
@@ -280,15 +279,15 @@ export const StoryViewer = ({
                 setPaused(true);
                 setViewersOpen(true);
               }}
-              className="absolute bottom-0 left-0 right-0 flex items-center gap-2 px-4 py-3 bg-linear-to-t from-black/70 to-transparent hover:from-black/80 transition-colors z-10"
+              className="absolute bottom-0 left-0 right-0 flex items-center gap-2 px-4 py-3 bg-linear-to-t from-background/70 to-transparent hover:from-background/80 transition-colors z-10"
             >
-              <Eye size={16} className="text-white/80" />
-              <span className="text-white text-sm font-medium">
+              <Eye size={16} className="text-muted-foreground" />
+              <span className="text-foreground text-sm font-medium">
                 {viewsCount} lượt xem
               </span>
               <ChevronLeft
                 size={14}
-                className="text-white/60 rotate-90 ml-auto"
+                className="text-muted-foreground rotate-90 ml-auto"
               />
             </button>
           )}

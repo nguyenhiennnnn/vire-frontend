@@ -44,7 +44,6 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold">Thông báo</h1>
         {unreadCount > 0 && (
@@ -60,7 +59,6 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      {/* Tabs */}
       <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "unread")}>
         <TabsList className="w-full rounded-none h-auto p-0 bg-transparent border-b mb-4">
           <TabsTrigger

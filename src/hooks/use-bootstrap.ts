@@ -19,7 +19,6 @@ export function useBootstrap() {
     const existingToken = useAuthStore.getState().accessToken;
 
     if (existingToken) {
-      // Token đã có sẵn → fetch counts luôn
       const { setUnreadCount, setFriendRequestCount } =
         useNotificationStore.getState();
 

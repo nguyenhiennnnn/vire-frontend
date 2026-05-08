@@ -187,7 +187,6 @@ export const ProfileInfo = ({
             )}
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-2 pb-1">
             {isOwn ? (
               <Button size="sm" variant="outline" onClick={() => openEdit()}>
@@ -216,7 +215,6 @@ export const ProfileInfo = ({
           </div>
         </div>
 
-        {/* Name / bio / stats */}
         <div className="mt-2 space-y-1">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold">{profile.username}</h1>

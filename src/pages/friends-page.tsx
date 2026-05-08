@@ -137,7 +137,6 @@ export default function FriendsPage() {
         </div>
       </section>
 
-      {/* ─── Lời mời đã gửi ──────────────────────────── */}
       <section>
         <h2 className="font-bold text-lg mb-3 flex items-center gap-2">
           <Clock size={18} className="text-muted-foreground" />
@@ -189,7 +188,6 @@ export default function FriendsPage() {
         </section>
       )}
 
-      {/* ─── All Friends ─────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-bold text-lg">
@@ -202,7 +200,6 @@ export default function FriendsPage() {
           </h2>
         </div>
 
-        {/* Local search */}
         <div className="relative mb-3">
           <Search
             size={16}

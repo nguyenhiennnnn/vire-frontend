@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { PostCardHeader } from "./post-card-header";
 import { PostCardMedia } from "./post-card-media";
 import { PostCardReactionBar } from "./post-card-reaction-bar";
@@ -42,20 +41,6 @@ function PostContent({
           Xem thêm
         </button>
       )}
-    </div>
-  );
-}
-
-function CommentFooter({ postId, count }: { postId: string; count: number }) {
-  if (count === 0) return null;
-  return (
-    <div className="pt-0.5 border-t">
-      <Link
-        to={`/posts/${postId}`}
-        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-      >
-        Xem tất cả {count} bình luận
-      </Link>
     </div>
   );
 }
@@ -103,10 +88,6 @@ export const PostCard = ({
             inDetail={variant === "full"}
             onCommentClick={onCommentClick}
           />
-
-          {variant === "compact" && (
-            <CommentFooter postId={post.id} count={post.commentsCount} />
-          )}
         </div>
       </article>
 

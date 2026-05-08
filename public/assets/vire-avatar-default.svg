@@ -1,9 +1,27 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="64" cy="64" r="64" fill="#E2E8F0"/>
-  <clipPath id="av">
-    <circle cx="64" cy="64" r="64"/>
-  </clipPath>
-  <circle cx="64" cy="50" r="22" fill="white"/>
-  <ellipse cx="64" cy="112" rx="36" ry="24" fill="white" clip-path="url(#av)"/>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="avBg" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#e8956a"/>
+      <stop offset="100%" stop-color="#a84a20"/>
+    </radialGradient>
+    <radialGradient id="avFig" cx="50%" cy="20%" r="70%">
+      <stop offset="0%" stop-color="#f0b080"/>
+      <stop offset="100%" stop-color="#c96838"/>
+    </radialGradient>
+    <clipPath id="avClip">
+      <circle cx="100" cy="100" r="100"/>
+    </clipPath>
+  </defs>
+
+  <circle cx="100" cy="100" r="100" fill="url(#avBg)"/>
+
+  <rect x="0" y="0" width="200" height="200" fill="none" clip-path="url(#avClip)">
+    <animate attributeName="opacity" values="0" dur="0s" fill="freeze"/>
+  </rect>
+
+  <circle cx="100" cy="76" r="32" fill="url(#avFig)" clip-path="url(#avClip)"/>
+
+  <ellipse cx="100" cy="168" rx="56" ry="46" fill="url(#avFig)" clip-path="url(#avClip)"/>
+
+  <circle cx="100" cy="100" r="99" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
 </svg>

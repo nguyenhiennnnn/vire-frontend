@@ -79,7 +79,6 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
       <UserAvatar user={comment.user} size="sm" className="mt-0.5 shrink-0" />
 
       <div className="flex-1 min-w-0 space-y-1">
-        {/* Content */}
         {editing ? (
           <div className="space-y-2">
             <textarea
@@ -123,7 +122,6 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex items-center gap-3 px-1 text-xs text-muted-foreground">
           <span>{fromNow(comment.createdAt)}</span>
 
@@ -181,7 +179,6 @@ export const CommentItem = ({ comment, postId, onReply }: Props) => {
           )}
         </div>
 
-        {/* Replies */}
         {showReplies && (
           <ReplyList
             commentId={comment.id}

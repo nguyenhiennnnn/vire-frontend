@@ -121,8 +121,7 @@ export const postsApi = {
     content?: string;
     mediaUrls?: string[];
     privacy: Privacy;
-  }) =>
-    api.post<{ post: Post }>("/posts", data).then((r) => r.data.post),
+  }) => api.post<{ post: Post }>("/posts", data).then((r) => r.data.post),
 
   getFeed: (cursor?: string, limit = 10) =>
     api

@@ -47,7 +47,7 @@ export const useDeletePostMutation = ({
   onSuccess,
 }: {
   postId: string;
-  userId?: string; // kept for callsite compat
+  userId?: string;
   onSuccess?: () => void;
 }) => {
   return useMutation({

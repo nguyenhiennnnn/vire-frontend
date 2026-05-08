@@ -26,14 +26,12 @@ import {
 } from "../hooks/use-auth-mutations";
 import { useAlertDialogStore } from "../stores/alert-dialog-store";
 
-// ─── Constants ────────────────────────────────────────
 const TABS = [
   { value: "account", label: "Tài khoản" },
   { value: "security", label: "Bảo mật" },
   { value: "danger", label: "Nguy hiểm" },
 ] as const;
 
-// ─── Schema ───────────────────────────────────────────
 const pwSchema = z
   .object({
     currentPassword: z.string().min(1, "Nhập mật khẩu hiện tại"),
@@ -47,7 +45,6 @@ const pwSchema = z
 
 type PwForm = z.infer<typeof pwSchema>;
 
-// ─── Sub-components ───────────────────────────────────
 function PasswordInput({
   show,
   onToggle,
@@ -70,7 +67,6 @@ function PasswordInput({
   );
 }
 
-// ─── Page ─────────────────────────────────────────────
 export default function SettingsPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -97,7 +93,6 @@ export default function SettingsPage() {
   const pwStrength = newPw ? getPasswordStrength(newPw) : null;
   const isDirty = username !== user?.username || bio !== (user?.bio ?? "");
 
-  // ─── Mutations ────────────────────────────────────────
   const updateMeMutation = useUpdateMeMutation();
 
   const resendMutation = useResendVerifyMutation({
@@ -200,7 +195,6 @@ export default function SettingsPage() {
           ))}
         </TabsList>
 
-        {/* ─── Account ─────────────────────────────── */}
         <TabsContent value="account" className="space-y-6">
           <div className="bg-card border rounded-xl p-5 space-y-4">
             <h3 className="font-semibold">Thông tin cơ bản</h3>
@@ -275,7 +269,6 @@ export default function SettingsPage() {
           )}
         </TabsContent>
 
-        {/* ─── Security ────────────────────────────── */}
         <TabsContent value="security">
           {isGoogleAccount ? (
             <div className="bg-card border rounded-xl p-6 text-center space-y-3">
@@ -357,7 +350,6 @@ export default function SettingsPage() {
           )}
         </TabsContent>
 
-        {/* ─── Danger ──────────────────────────────── */}
         <TabsContent value="danger" className="space-y-4">
           <div className="bg-card border rounded-xl p-5 space-y-3">
             <h3 className="font-semibold text-foreground">

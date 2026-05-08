@@ -93,7 +93,6 @@ export const registerFriendListeners = ({
   socket.on(
     "friend:request_accepted",
     ({ friendship, users }: FriendAcceptedPayload) => {
-      // My sent request was accepted — I am the sender
       qc.setQueryData<InfiniteData<PaginatedResponse<Friendship>>>(
         ["friendship-sent"],
         (old) => removeFromInfinite(old, friendship.id),
@@ -124,7 +123,6 @@ export const registerFriendListeners = ({
   socket.on(
     "friend:you_accepted_request",
     ({ friendship, users }: FriendAcceptedPayload) => {
-      // I accepted someone's request — I am the receiver
       decrementFriendRequest();
       qc.setQueryData<InfiniteData<PaginatedResponse<Friendship>>>(
         ["friendship-requests"],
@@ -156,7 +154,6 @@ export const registerFriendListeners = ({
   socket.on(
     "friend:request_rejected",
     ({ friendshipId, rejectedBy }: FriendRejectedPayload) => {
-      // My sent request was rejected
       qc.setQueryData<InfiniteData<PaginatedResponse<Friendship>>>(
         ["friendship-sent"],
         (old) => removeFromInfinite(old, friendshipId),
@@ -169,7 +166,6 @@ export const registerFriendListeners = ({
   socket.on(
     "friend:you_rejected_request",
     ({ friendshipId, requestFrom }: FriendYouRejectedPayload) => {
-      // I rejected someone's request
       decrementFriendRequest();
       qc.setQueryData<InfiniteData<PaginatedResponse<Friendship>>>(
         ["friendship-requests"],
@@ -183,7 +179,6 @@ export const registerFriendListeners = ({
   socket.on(
     "friend:request_cancelled",
     ({ friendshipId, cancelledBy }: FriendCancelledPayload) => {
-      // Someone cancelled their request to me
       decrementFriendRequest();
       qc.setQueryData<InfiniteData<PaginatedResponse<Friendship>>>(
         ["friendship-requests"],
@@ -197,7 +192,6 @@ export const registerFriendListeners = ({
   socket.on(
     "friend:you_cancelled_request",
     ({ friendshipId }: FriendYouCancelledPayload) => {
-      // I cancelled my sent request
       qc.setQueryData<InfiniteData<PaginatedResponse<Friendship>>>(
         ["friendship-sent"],
         (old) => removeFromInfinite(old, friendshipId),
@@ -311,7 +305,6 @@ export const registerFriendListeners = ({
         );
       }
       if (theyHadSentRequest) {
-        // actorId had sent me a request → remove from my incoming
         decrementFriendRequest();
         qc.setQueryData<InfiniteData<PaginatedResponse<Friendship>>>(
           ["friendship-requests"],

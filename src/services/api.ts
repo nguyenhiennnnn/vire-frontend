@@ -4,13 +4,11 @@ import type { RefreshResponse, ApiError } from "../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL as string;
 
-// ─── Main API instance ────────────────────────────────────
 const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
 });
 
-// ─── Request: attach accessToken ─────────────────────────
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = useAuthStore.getState().accessToken;
   if (token && config.headers) {
@@ -19,7 +17,6 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-// ─── Response: auto-refresh on 401 ───────────────────────
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string) => void;

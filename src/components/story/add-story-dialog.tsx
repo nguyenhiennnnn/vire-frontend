@@ -59,7 +59,6 @@ export const AddStoryDialog = ({ open, onClose }: Props) => {
           </div>
         ) : (
           <div className="space-y-3">
-            {/* 9:16 preview */}
             <div className="relative w-full aspect-9/16 rounded-xl overflow-hidden bg-black max-h-90">
               {file?.type.startsWith("video/") ? (
                 <video
@@ -75,7 +74,6 @@ export const AddStoryDialog = ({ open, onClose }: Props) => {
                   className="w-full h-full object-contain"
                 />
               )}
-              {/* Caption overlay */}
               {caption && (
                 <div className="absolute bottom-4 left-0 right-0 px-3 text-center">
                   <p className="text-white text-sm drop-shadow">{caption}</p>

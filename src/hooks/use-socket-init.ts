@@ -50,7 +50,6 @@ export const useSocketInit = () => {
       console.error("[socket] connect_error", err.message);
     });
 
-    // ── Register all domain listeners ──────────────────────────────────────
     registerPresenceListeners({ socket, setOnline, setOffline, hydrate });
     registerNotificationListeners({ socket, qc, setUnreadCount });
     registerFeedListeners({ socket, qc });
