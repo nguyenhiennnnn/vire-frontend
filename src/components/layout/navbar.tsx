@@ -160,7 +160,10 @@ export const Navbar = () => {
 
           <Link
             to="/friends"
-            className="relative p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground"
+            className={cn(
+              "relative p-2 rounded-full hover:bg-muted transition-colors",
+              isActive("/friends") ? "text-primary" : "text-muted-foreground",
+            )}
           >
             <UserPlus size={21} />
             <NavBadge count={friendRequestCount} />

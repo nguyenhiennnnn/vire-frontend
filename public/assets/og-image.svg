@@ -1,0 +1,72 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a0a05"/>
+      <stop offset="100%" stop-color="#2e1108"/>
+    </linearGradient>
+    <linearGradient id="lgMark" x1="0%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#f0a050"/>
+      <stop offset="100%" stop-color="#c04a18"/>
+    </linearGradient>
+    <linearGradient id="lgText" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fde8cc"/>
+      <stop offset="100%" stop-color="#f0a050"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="20%" cy="25%" r="50%">
+      <stop offset="0%" stop-color="#c04a18" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#c04a18" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="80%" cy="75%" r="45%">
+      <stop offset="0%" stop-color="#f0a050" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#f0a050" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.5" fill="#f0a050" opacity="0.15"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- Ghost V top-left -->
+  <g opacity="0.07" transform="translate(-80,-100) scale(3.6)">
+    <polygon points="52,44 100,148 116,110 76,44" fill="#f0a050"/>
+    <polygon points="148,44 100,148 84,110 124,44" fill="#c04a18"/>
+  </g>
+
+  <!-- Ghost V bottom-right -->
+  <g opacity="0.07" transform="translate(1060,500) scale(2.8) rotate(180,100,110)">
+    <polygon points="52,44 100,148 116,110 76,44" fill="#f0a050"/>
+    <polygon points="148,44 100,148 84,110 124,44" fill="#c04a18"/>
+  </g>
+
+  <!-- V mark -->
+  <g transform="translate(463,155) scale(5.6)">
+    <polygon points="10,14 34,66 40,52 24,14" fill="url(#lgMark)"/>
+    <polygon points="58,14 34,66 28,52 44,14" fill="#c04a18" opacity="0.85"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="600" y="432"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="96"
+    font-weight="700"
+    letter-spacing="-2"
+    fill="url(#lgText)"
+    text-anchor="middle">vire</text>
+
+  <!-- Tagline -->
+  <text x="600" y="490"
+    font-family="system-ui, sans-serif"
+    font-size="20"
+    font-weight="400"
+    letter-spacing="5"
+    fill="#f0a050"
+    opacity="0.55"
+    text-anchor="middle">CONNECT · SHARE · DISCOVER</text>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1200" height="3" fill="url(#lgMark)"/>
+</svg>
