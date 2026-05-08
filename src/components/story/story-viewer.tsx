@@ -8,20 +8,11 @@ import { StoryProgress } from "./story-progress";
 import { fromNow } from "../../lib/utils";
 import type { StoryGroup } from "../../types";
 import { StoryViewersDialog } from "./story-viewers-dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
 import { useDeleteStoryMutation } from "../../hooks/use-story-mutations";
 import { useSocket } from "../../hooks/use-socket";
 import { storyEvents } from "../../socket/register-story-listeners";
 import { useSocketStore } from "../../stores/socket-store";
+import { useAlertDialogStore } from "../../stores/alert-dialog-store";
 
 const STORY_DURATION = 5000;
 const TICK = 100;
@@ -42,13 +33,13 @@ export const StoryViewer = ({
   const { user } = useAuth();
   const { joinStoryRoom, leaveStoryRoom } = useSocket();
   const { socket } = useSocketStore();
+  const { show } = useAlertDialogStore();
 
   const [groupIdx, setGroupIdx] = useState(initialGroupIndex);
   const [storyIdx, setStoryIdx] = useState(0);
   const [progress, setProgress] = useState(0);
   const [viewersOpen, setViewersOpen] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [deleteStotyOpen, setDeleteStoryOpen] = useState(false);
   const [muted, setMuted] = useState(true);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -179,6 +170,20 @@ export const StoryViewer = ({
     onSuccess: () => goNext(),
   });
 
+  const handleDeleteStory = () => {
+    show({
+      title: "Xóa story?",
+      description: "Story này sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+      confirmLabel: deleteStoryMutation.isPending ? "Đang xóa..." : "Xóa story",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        onClose();
+        deleteStoryMutation.mutate(currentStory.id);
+      },
+    });
+  };
+
   if (!open || !currentGroup || !currentStory) return null;
 
   const viewsCount = viewersData?.totalViews ?? currentStory.viewsCount ?? 0;
@@ -221,7 +226,7 @@ export const StoryViewer = ({
             {isOwn && (
               <button
                 className="text-white p-1.5 rounded-full transition-colors bg-black/40 hover:bg-black/60 backdrop-blur-sm shadow"
-                onClick={() => setDeleteStoryOpen(true)}
+                onClick={handleDeleteStory}
                 disabled={deleteStoryMutation.isPending}
                 title="Xoá story"
               >
@@ -317,30 +322,6 @@ export const StoryViewer = ({
           }}
         />
       )}
-
-      <AlertDialog open={deleteStotyOpen} onOpenChange={setDeleteStoryOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xoá story?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Story sẽ bị xoá vĩnh viễn.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Huỷ</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
-              onClick={() => {
-                onClose();
-                deleteStoryMutation.mutate(currentStory.id);
-              }}
-              disabled={deleteStoryMutation.isPending}
-            >
-              Xoá
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };

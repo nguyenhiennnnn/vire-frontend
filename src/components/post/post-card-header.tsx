@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   MoreHorizontal,
@@ -16,21 +15,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
 import { UserAvatar } from "../shared/user-avatar";
 import { fromNow } from "../../lib/utils";
 import { useAuth } from "../../hooks/use-auth";
 import type { Post, Privacy } from "../../types";
 import { useDeletePostMutation } from "../../hooks/use-post-mutations";
+import { useAlertDialogStore } from "../../stores/alert-dialog-store";
 
 const PRIVACY_ICON: Record<Privacy, React.ReactNode> = {
   PUBLIC: <Globe size={11} />,
@@ -48,13 +38,29 @@ interface Props {
 export const PostCardHeader = ({ post, onDelete, onEdit, onHide }: Props) => {
   const { user } = useAuth();
   const isOwn = user?.id === post.userId;
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const { show } = useAlertDialogStore();
 
   const deletePostMutation = useDeletePostMutation({
     postId: post.id,
     userId: post.userId,
     onSuccess: onDelete,
   });
+
+  const handleDelete = () => {
+    show({
+      title: "Xóa bài viết?",
+      description:
+        "Bài viết cùng toàn bộ bình luận và tương tác sẽ bị xóa vĩnh viễn.",
+      confirmLabel: deletePostMutation.isPending
+        ? "Đang xóa..."
+        : "Xóa bài viết",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        deletePostMutation.mutate();
+      },
+    });
+  };
 
   return (
     <>
@@ -96,7 +102,7 @@ export const PostCardHeader = ({ post, onDelete, onEdit, onHide }: Props) => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive"
-                  onClick={() => setDeleteOpen(true)}
+                  onClick={handleDelete}
                 >
                   <Trash2 size={14} className="mr-2" />
                   Xoá bài viết
@@ -111,31 +117,6 @@ export const PostCardHeader = ({ post, onDelete, onEdit, onHide }: Props) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xoá bài viết?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Hành động này không thể hoàn tác. Bài viết và tất cả bình luận sẽ
-              bị xoá vĩnh viễn.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Huỷ</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
-              onClick={() => {
-                setDeleteOpen(false);
-                deletePostMutation.mutate();
-              }}
-              disabled={deletePostMutation.isPending}
-            >
-              {deletePostMutation.isPending ? "Đang xoá..." : "Xoá"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };

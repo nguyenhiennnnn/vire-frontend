@@ -13,16 +13,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../components/ui/alert-dialog";
 import { getPasswordStrength } from "../lib/utils";
 import { PasswordStrengthBar } from "../components/shared/password-strength-bar";
 import {
@@ -34,6 +24,7 @@ import {
   useChangePasswordMutation,
   useResendVerifyMutation,
 } from "../hooks/use-auth-mutations";
+import { useAlertDialogStore } from "../stores/alert-dialog-store";
 
 // ─── Constants ────────────────────────────────────────
 const TABS = [
@@ -83,13 +74,11 @@ function PasswordInput({
 export default function SettingsPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { show } = useAlertDialogStore();
 
   const [username, setUsername] = useState(user?.username ?? "");
   const [bio, setBio] = useState(user?.bio ?? "");
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [deactivateOpen, setDeactivateOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState("");
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
 
@@ -141,6 +130,59 @@ export default function SettingsPage() {
 
   const deleteMutation = useDeleteAccountMutation();
 
+  const handleSaveProfile = () => {
+    updateMeMutation.mutate({
+      username: username !== user?.username ? username : undefined,
+      bio: bio !== (user?.bio ?? "") ? bio : undefined,
+    });
+  };
+
+  const handleResendVerify = () => {
+    resendMutation.mutate(user?.email ?? "");
+  };
+
+  const handleToggleCurrentPw = () => {
+    setShowCurrent((v) => !v);
+  };
+
+  const handleToggleNewPw = () => {
+    setShowNew((v) => !v);
+  };
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+  };
+
+  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setBio(e.target.value);
+  };
+
+  const handlePasswordSubmit = (d: PwForm) => {
+    changePwMutation.mutate(d);
+  };
+
+  const handleOpenDeactivate = () => {
+    show({
+      title: "Vô hiệu hoá tài khoản?",
+      description:
+        "Tài khoản sẽ bị tạm ẩn. Bạn có thể đăng nhập lại để kích hoạt.",
+      confirmLabel: "Xác nhận",
+      cancelLabel: "Huỷ",
+      onConfirm: () => deactivateMutation.mutate(),
+    });
+  };
+
+  const handleOpenDelete = () => {
+    show({
+      title: "Xoá tài khoản vĩnh viễn?",
+      description: "Tất cả dữ liệu sẽ bị xoá vĩnh viễn và không thể hoàn tác.",
+      confirmLabel: "Xoá vĩnh viễn",
+      cancelLabel: "Huỷ",
+      variant: "destructive",
+      onConfirm: () => deleteMutation.mutate(),
+    });
+  };
+
   return (
     <div className="max-w-2xl mx-auto">
       <h1 className="text-xl font-bold mb-4">Cài đặt</h1>
@@ -164,16 +206,13 @@ export default function SettingsPage() {
             <h3 className="font-semibold">Thông tin cơ bản</h3>
             <div className="space-y-1">
               <label className="text-sm font-medium">Username</label>
-              <Input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
+              <Input value={username} onChange={handleUsernameChange} />
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium">Bio</label>
               <textarea
                 value={bio}
-                onChange={(e) => setBio(e.target.value)}
+                onChange={handleBioChange}
                 maxLength={200}
                 rows={3}
                 className="w-full border rounded-md px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
@@ -185,12 +224,7 @@ export default function SettingsPage() {
             </div>
             <Button
               disabled={!isDirty || updateMeMutation.isPending}
-              onClick={() =>
-                updateMeMutation.mutate({
-                  username: username !== user?.username ? username : undefined,
-                  bio: bio !== (user?.bio ?? "") ? bio : undefined,
-                })
-              }
+              onClick={handleSaveProfile}
             >
               {updateMeMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
             </Button>
@@ -217,7 +251,7 @@ export default function SettingsPage() {
                 size="sm"
                 variant="outline"
                 disabled={resendCooldown > 0 || resendMutation.isPending}
-                onClick={() => resendMutation.mutate(user?.email ?? "")}
+                onClick={handleResendVerify}
               >
                 {resendCooldown > 0
                   ? `Gửi lại sau ${resendCooldown}s`
@@ -267,7 +301,7 @@ export default function SettingsPage() {
             <div className="bg-card border rounded-xl p-5 space-y-4">
               <h3 className="font-semibold">Đổi mật khẩu</h3>
               <form
-                onSubmit={handleSubmit((d) => changePwMutation.mutate(d))}
+                onSubmit={handleSubmit(handlePasswordSubmit)}
                 className="space-y-3"
               >
                 <div className="space-y-1">
@@ -276,7 +310,7 @@ export default function SettingsPage() {
                   </label>
                   <PasswordInput
                     show={showCurrent}
-                    onToggle={() => setShowCurrent((v) => !v)}
+                    onToggle={handleToggleCurrentPw}
                     {...register("currentPassword")}
                   />
                   {errors.currentPassword && (
@@ -290,7 +324,7 @@ export default function SettingsPage() {
                   <label className="text-sm font-medium">Mật khẩu mới</label>
                   <PasswordInput
                     show={showNew}
-                    onToggle={() => setShowNew((v) => !v)}
+                    onToggle={handleToggleNewPw}
                     {...register("newPassword")}
                   />
                   {newPw && pwStrength && (
@@ -333,7 +367,7 @@ export default function SettingsPage() {
               Tài khoản sẽ bị vô hiệu hoá. Bạn có thể kích hoạt lại bằng cách
               đăng nhập.
             </p>
-            <Button variant="outline" onClick={() => setDeactivateOpen(true)}>
+            <Button variant="outline" onClick={handleOpenDeactivate}>
               Vô hiệu hoá tài khoản
             </Button>
           </div>
@@ -344,60 +378,12 @@ export default function SettingsPage() {
               Hành động này <strong>không thể hoàn tác</strong>. Tất cả dữ liệu
               sẽ bị xoá vĩnh viễn.
             </p>
-            <Button variant="destructive" onClick={() => setDeleteOpen(true)}>
+            <Button variant="destructive" onClick={handleOpenDelete}>
               Xoá tài khoản vĩnh viễn
             </Button>
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* ─── Dialogs ─────────────────────────────────── */}
-      <AlertDialog open={deactivateOpen} onOpenChange={setDeactivateOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Vô hiệu hoá tài khoản?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tài khoản sẽ bị tạm ẩn. Bạn có thể đăng nhập lại để kích hoạt.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Huỷ</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deactivateMutation.mutate()}>
-              Xác nhận
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xoá tài khoản vĩnh viễn?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Nhập <strong>XOATAIKHOAN</strong> để xác nhận. Hành động này không
-              thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <Input
-            value={deleteConfirm}
-            onChange={(e) => setDeleteConfirm(e.target.value)}
-            placeholder="XOATAIKHOAN"
-            className="my-2"
-          />
-          <AlertDialogFooter>
-            <AlertDialogCancel>Huỷ</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
-              disabled={
-                deleteConfirm !== "XOATAIKHOAN" || deleteMutation.isPending
-              }
-              onClick={() => deleteMutation.mutate()}
-            >
-              Xoá vĩnh viễn
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

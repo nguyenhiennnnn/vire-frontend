@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   UserPlus,
   UserCheck,
@@ -14,16 +13,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
 import type { FriendshipStatus, User } from "../../types";
 import {
   useAcceptRequestMutation,
@@ -34,6 +23,7 @@ import {
   useUnblockMutation,
   useUnfriendMutation,
 } from "../../hooks/use-friendship-mutations";
+import { useAlertDialogStore } from "../../stores/alert-dialog-store";
 
 interface Props {
   profile: User;
@@ -46,11 +36,7 @@ export const FriendshipButton = ({
   status,
   onStatusChange,
 }: Props) => {
-  const [unfriendOpen, setUnfriendOpen] = useState(false);
-  const [blockOpen, setBlockOpen] = useState(false);
-  const [unBlockOpen, setUnblockOpen] = useState(false);
-  const [rejectOpen, setRejectOpen] = useState(false);
-  const [cancelOpen, setCancelOpen] = useState(false);
+  const { show } = useAlertDialogStore();
 
   const sendRequestMutation = useSendRequestMutation({
     profile,
@@ -84,6 +70,72 @@ export const FriendshipButton = ({
     onSuccess: onStatusChange,
   });
 
+  const handleCancelRequest = () => {
+    show({
+      title: "Huỷ lời mời kết bạn?",
+      description: `Lời mời gửi đến ${profile.username} sẽ bị huỷ.`,
+      confirmLabel: cancelRequestMutation.isPending
+        ? "Đang huỷ..."
+        : "Huỷ lời mời",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        cancelRequestMutation.mutate();
+      },
+    });
+  };
+
+  const handleRejectRequest = () => {
+    show({
+      title: "Từ chối lời mời?",
+      description: `Bạn sẽ không trở thành bạn bè với ${profile.username}.`,
+      confirmLabel: "Từ chối",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        rejectRequestMutation.mutate();
+      },
+    });
+  };
+
+  const handleUnfriend = () => {
+    show({
+      title: "Huỷ kết bạn?",
+      description: `Bạn và ${profile.username} sẽ không còn là bạn bè.`,
+      confirmLabel: "Huỷ kết bạn",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        unfriendMutation.mutate(profile.id);
+      },
+    });
+  };
+
+  const handleBlock = () => {
+    show({
+      title: "Chặn người dùng?",
+      description: `Bạn sẽ không còn nhận tin nhắn hay tương tác từ ${profile.username}.`,
+      confirmLabel: "Chặn",
+      cancelLabel: "Huỷ",
+      variant: "destructive",
+      onConfirm: () => {
+        blockMutation.mutate();
+      },
+    });
+  };
+
+  const handleUnblock = () => {
+    show({
+      title: "Bỏ chặn người dùng?",
+      description: `Bạn sẽ có thể nhận lại tương tác từ ${profile.username}.`,
+      confirmLabel: "Bỏ chặn",
+      cancelLabel: "Đóng",
+      onConfirm: () => {
+        unblockMutation.mutate();
+      },
+    });
+  };
+
   if (status === "none") {
     return (
       <Button
@@ -106,33 +158,11 @@ export const FriendshipButton = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setCancelOpen(true)}>
+            <DropdownMenuItem onClick={handleCancelRequest}>
               <UserMinus size={13} className="mr-2" /> Huỷ lời mời
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Huỷ lời mời?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Bạn sẽ không gửi lời mời kết bạn đến {profile.username}.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>
-                <UserMinus size={13} className="mr-2" /> Huỷ
-              </AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive hover:bg-destructive/90"
-                onClick={() => cancelRequestMutation.mutate()}
-              >
-                <UserCheck size={13} className="mr-2" /> Xác nhận
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </>
     );
   }
@@ -150,31 +180,11 @@ export const FriendshipButton = ({
         <Button
           size="sm"
           variant="outline"
-          onClick={() => setRejectOpen(true)}
+          onClick={handleRejectRequest}
           disabled={rejectRequestMutation.isPending}
         >
           <UserMinus size={14} className="mr-1.5" /> Từ chối
         </Button>
-
-        <AlertDialog open={rejectOpen} onOpenChange={setRejectOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Từ chối lời mời?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Bạn sẽ không trở thành bạn bè với {profile.username}.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Huỷ</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive hover:bg-destructive/90"
-                onClick={() => rejectRequestMutation.mutate()}
-              >
-                Xác nhận
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
     );
   }
@@ -191,58 +201,18 @@ export const FriendshipButton = ({
           <DropdownMenuContent>
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={() => setUnfriendOpen(true)}
+              onClick={handleUnfriend}
             >
               <UserMinus size={13} className="mr-2" /> Huỷ kết bạn
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
-              onClick={() => setBlockOpen(true)}
+              onClick={handleBlock}
             >
               <Ban size={13} className="mr-2" /> Chặn
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <AlertDialog open={unfriendOpen} onOpenChange={setUnfriendOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Huỷ kết bạn?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Bạn sẽ không còn là bạn bè nữa.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Huỷ</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive hover:bg-destructive/90"
-                onClick={() => unfriendMutation.mutate(profile.id)}
-              >
-                Xác nhận
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        <AlertDialog open={blockOpen} onOpenChange={setBlockOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Chặn người dùng?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Bạn sẽ không còn nhận tin từ họ nữa.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Huỷ</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive hover:bg-destructive/90"
-                onClick={() => blockMutation.mutate()}
-              >
-                Xác nhận
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </>
     );
   }
@@ -254,30 +224,10 @@ export const FriendshipButton = ({
           size="sm"
           variant="outline"
           className="border-destructive text-destructive hover:bg-destructive/10"
-          onClick={() => setUnblockOpen(true)}
+          onClick={handleUnblock}
         >
           <Ban size={14} className="mr-1.5" /> Đã chặn
         </Button>
-
-        <AlertDialog open={unBlockOpen} onOpenChange={setUnblockOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Huỷ chặn người dùng?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Bạn sẽ bắt đầu nhận tin từ họ nữa.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Huỷ</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive hover:bg-destructive/90"
-                onClick={() => unblockMutation.mutate()}
-              >
-                Xác nhận
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </>
     );
   }

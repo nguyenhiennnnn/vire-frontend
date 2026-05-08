@@ -7,21 +7,12 @@ import { fromNow } from "../../lib/utils";
 import type { Friendship, User, FriendSuggestion } from "../../types";
 import { useState } from "react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
-import {
   useAcceptRequestMutation,
   useCancelRequestMutation,
   useRejectRequestMutation,
   useSendRequestMutation,
 } from "../../hooks/use-friendship-mutations";
+import { useAlertDialogStore } from "../../stores/alert-dialog-store";
 
 // ─── FriendRequestCard ────────────────────────────────────
 export const FriendRequestCard = ({
@@ -31,7 +22,7 @@ export const FriendRequestCard = ({
 }) => {
   const sender = friendship.sender!;
   const [handled, setHandled] = useState(false);
-  const [rejectOpen, setRejectOpen] = useState(false);
+  const { show } = useAlertDialogStore();
 
   const acceptRequestMutation = useAcceptRequestMutation({
     senderId: sender.id,
@@ -42,6 +33,19 @@ export const FriendRequestCard = ({
     senderId: sender.id,
     onSuccess: () => setHandled(true),
   });
+
+  const handleReject = () => {
+    show({
+      title: "Từ chối lời mời kết bạn?",
+      description: `Bạn sẽ không trở thành bạn bè với ${sender.username}.`,
+      confirmLabel: "Từ chối",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        rejectRequestMutation.mutate();
+      },
+    });
+  };
 
   if (handled) return null;
 
@@ -80,32 +84,12 @@ export const FriendRequestCard = ({
         <Button
           size="sm"
           variant="outline"
-          onClick={() => setRejectOpen(true)}
+          onClick={handleReject}
           disabled={rejectRequestMutation.isPending}
         >
           <X size={14} className="mr-1" /> Xoá
         </Button>
       </div>
-
-      <AlertDialog open={rejectOpen} onOpenChange={setRejectOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Từ chối lời mời?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn sẽ không trở thành bạn bè với {sender.username}.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Huỷ</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
-              onClick={() => rejectRequestMutation.mutate()}
-            >
-              Xác nhận
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
@@ -176,12 +160,27 @@ export const FriendSuggestionCard = ({
 export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
   const receiver = friendship.receiver!;
   const [cancelled, setCancelled] = useState(false);
-  const [cancelOpen, setCancelOpen] = useState(false);
+  const { show } = useAlertDialogStore();
 
   const cancelRequestMutation = useCancelRequestMutation({
     profile: receiver,
     onSuccess: () => setCancelled(true),
   });
+
+  const handleCancelRequest = () => {
+    show({
+      title: "Huỷ lời mời kết bạn?",
+      description: `Lời mời gửi đến ${receiver.username} sẽ bị huỷ.`,
+      confirmLabel: cancelRequestMutation.isPending
+        ? "Đang huỷ..."
+        : "Huỷ lời mời",
+      cancelLabel: "Đóng",
+      variant: "destructive",
+      onConfirm: () => {
+        cancelRequestMutation.mutate();
+      },
+    });
+  };
 
   if (cancelled) return null;
 
@@ -211,32 +210,12 @@ export const SentRequestCard = ({ friendship }: { friendship: Friendship }) => {
       <Button
         size="sm"
         variant="outline"
-        onClick={() => setCancelOpen(true)}
+        onClick={handleCancelRequest}
         disabled={cancelRequestMutation.isPending}
         className="shrink-0"
       >
         {cancelRequestMutation.isPending ? "Đang huỷ..." : "Huỷ lời mời"}
       </Button>
-
-      <AlertDialog open={cancelOpen} onOpenChange={setCancelOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Huỷ lời mời?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn sẽ không gửi lời mời kết bạn đến {receiver.username}.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Huỷ</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
-              onClick={() => cancelRequestMutation.mutate()}
-            >
-              Xác nhận
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
@@ -249,8 +228,22 @@ export const FriendCard = ({
   friend: User;
   onUnfriend?: (id: string) => void;
 }) => {
-  const [unfriendOpen, setUnfriendOpen] = useState(false);
   const [removed, setRemoved] = useState(false);
+  const { show } = useAlertDialogStore();
+
+  const handleUnfriend = () => {
+    show({
+      title: "Huỷ kết bạn?",
+      description: `Bạn và ${friend.username} sẽ không còn là bạn bè.`,
+      confirmLabel: "Huỷ kết bạn",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        setRemoved(true);
+        onUnfriend?.(friend.id);
+      },
+    });
+  };
 
   if (removed) return null;
 
@@ -279,33 +272,10 @@ export const FriendCard = ({
             size="sm"
             variant="ghost"
             className="text-xs text-muted-foreground shrink-0"
-            onClick={() => setUnfriendOpen(true)}
+            onClick={handleUnfriend}
           >
             Huỷ kết bạn
           </Button>
-
-          <AlertDialog open={unfriendOpen} onOpenChange={setUnfriendOpen}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Huỷ kết bạn?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Bạn sẽ không còn là bạn bè nữa.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Huỷ</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-destructive hover:bg-destructive/90"
-                  onClick={() => {
-                    setRemoved(true);
-                    onUnfriend(friend.id);
-                  }}
-                >
-                  Xác nhận
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </>
       )}
     </div>

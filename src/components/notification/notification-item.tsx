@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { UserAvatar } from "../shared/user-avatar";
 import { fromNow, getNotifText, getNotifTarget, cn } from "../../lib/utils";
@@ -8,16 +7,7 @@ import {
   useMarkReadMutation,
   useDeleteNotificationMutation,
 } from "../../hooks/use-notification-mutations";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
+import { useAlertDialogStore } from "../../stores/alert-dialog-store";
 
 interface Props {
   notification: Notification;
@@ -25,18 +15,31 @@ interface Props {
 
 export const NotificationItem = ({ notification }: Props) => {
   const navigate = useNavigate();
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const { show } = useAlertDialogStore();
 
   const markRead = useMarkReadMutation(notification.id);
-  const deleteMutation = useDeleteNotificationMutation(
-    notification.id
-  );
+  const deleteMutation = useDeleteNotificationMutation(notification.id);
 
   const handleClick = () => {
     if (!notification.isRead) {
       markRead.mutate();
     }
     navigate(getNotifTarget(notification));
+  };
+
+  const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+
+    show({
+      title: "Xóa thông báo?",
+      description: "Thông báo này sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+      confirmLabel: deleteMutation.isPending ? "Đang xóa..." : "Xóa thông báo",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        deleteMutation.mutate();
+      },
+    });
   };
 
   return (
@@ -78,38 +81,11 @@ export const NotificationItem = ({ notification }: Props) => {
             "p-1.5 rounded-full hover:bg-muted transition-all text-muted-foreground hover:text-destructive",
             "opacity-0 group-hover:opacity-100",
           )}
-          onClick={(e) => {
-            e.stopPropagation();
-            setDeleteOpen(true);
-          }}
+          onClick={handleDelete}
         >
           <Trash2 size={13} />
         </button>
       </div>
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xoá thông báo?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Thông báo này sẽ bị xoá vĩnh viễn và không thể khôi phục.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
-              Huỷ
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.stopPropagation();
-                deleteMutation.mutate();
-              }}
-            >
-              Xác nhận
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

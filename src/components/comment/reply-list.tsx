@@ -10,22 +10,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
 import { fromNow } from "../../lib/utils";
 import type { Comment } from "../../types";
 import {
   useDeleteCommentMutation,
   useUpdateCommentMutation,
 } from "../../hooks/use-comment-mutations";
+import { useAlertDialogStore } from "../../stores/alert-dialog-store";
 
 interface Props {
   commentId: string;
@@ -35,6 +26,7 @@ interface Props {
 
 export const ReplyList = ({ commentId, postId, onReply }: Props) => {
   const { user } = useAuth();
+  const { show } = useAlertDialogStore();
 
   const {
     data: replies = [],
@@ -47,7 +39,6 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
-  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const updateCommentMutation = useUpdateCommentMutation({
     postId,
@@ -58,8 +49,22 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
   const deleteCommentMutation = useDeleteCommentMutation({
     postId,
     parentCommentId: commentId,
-    onSuccess: () => setDeleteId(null),
   });
+
+  const handleDelete = (replyId: string) => {
+    show({
+      title: "Xóa phản hồi?",
+      description: "Phản hồi này sẽ bị xóa vĩnh viễn.",
+      confirmLabel: deleteCommentMutation.isPending
+        ? "Đang xóa..."
+        : "Xóa phản hồi",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        deleteCommentMutation.mutate(replyId);
+      },
+    });
+  };
 
   // ─── Loading ──────────────────────────────────────────
   if (isLoading) {
@@ -177,7 +182,7 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
-                            onClick={() => setDeleteId(reply.id)}
+                            onClick={() => handleDelete(reply.id)}
                           >
                             <Trash2 size={12} className="mr-2" /> Xoá
                           </DropdownMenuItem>
@@ -191,31 +196,6 @@ export const ReplyList = ({ commentId, postId, onReply }: Props) => {
           );
         })}
       </div>
-
-      {/* Delete confirm dialog */}
-      <AlertDialog
-        open={!!deleteId}
-        onOpenChange={(o) => !o && setDeleteId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xoá trả lời?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Hành động này không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Huỷ</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
-              onClick={() => deleteId && deleteCommentMutation.mutate(deleteId)}
-              disabled={deleteCommentMutation.isPending}
-            >
-              {deleteCommentMutation.isPending ? "Đang xoá..." : "Xoá"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };

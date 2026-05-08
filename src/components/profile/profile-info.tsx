@@ -2,7 +2,6 @@ import { useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { FriendshipButton } from "../friend/friendship-button";
 import { OnlineBadge } from "../shared/online-badge";
 import { cn } from "../../lib/utils";
@@ -14,6 +13,7 @@ import {
   useEditProfileMutation,
 } from "../../hooks/use-user-mutations";
 import { useFollowMutation } from "../../hooks/use-follow-mutations";
+import { useDialogStore } from "../../stores/dialog-store";
 
 interface Props {
   profile: User;
@@ -40,7 +40,7 @@ export const ProfileInfo = ({
   onRefresh,
 }: Props) => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const [editOpen, setEditOpen] = useState(false);
+  const { show, hide } = useDialogStore();
   const [editUsername, setEditUsername] = useState(profile.username);
   const [editBio, setEditBio] = useState(profile.bio ?? "");
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -49,10 +49,7 @@ export const ProfileInfo = ({
 
   const editProfileMutation = useEditProfileMutation({
     profile,
-    onSuccess: () => {
-      setEditOpen(false);
-      onRefresh();
-    },
+    onSuccess: () => onRefresh(),
   });
 
   const followMutation = useFollowMutation({
@@ -64,7 +61,71 @@ export const ProfileInfo = ({
   const openEdit = () => {
     setEditUsername(profile.username);
     setEditBio(profile.bio ?? "");
-    setEditOpen(true);
+
+    show({
+      title: "Chỉnh sửa trang cá nhân",
+
+      content: (
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Username</label>
+
+            <Input
+              value={editUsername}
+              onChange={(e) => setEditUsername(e.target.value)}
+              maxLength={20}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Bio</label>
+
+            <textarea
+              value={editBio}
+              onChange={(e) => setEditBio(e.target.value)}
+              maxLength={200}
+              rows={4}
+              className="w-full border rounded-xl px-3 py-2 text-sm resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+              placeholder="Giới thiệu bản thân..."
+            />
+
+            <p className="text-xs text-muted-foreground text-right">
+              {editBio.length}/200
+            </p>
+          </div>
+        </div>
+      ),
+
+      footer: (
+        <div className="flex justify-end gap-2 w-full">
+          <Button variant="outline" onClick={hide}>
+            Huỷ
+          </Button>
+
+          <Button
+            onClick={() =>
+              editProfileMutation.mutate(
+                {
+                  username: editUsername,
+                  bio: editBio,
+                },
+                {
+                  onSuccess: () => {
+                    hide();
+                    onRefresh();
+                  },
+                },
+              )
+            }
+            disabled={editProfileMutation.isPending}
+          >
+            {editProfileMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+          </Button>
+        </div>
+      ),
+
+      className: "sm:max-w-md",
+    });
   };
 
   return (
@@ -116,7 +177,7 @@ export const ProfileInfo = ({
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onClick={(e) => e.stopPropagation()} 
+                  onClick={(e) => e.stopPropagation()}
                   onChange={(e) =>
                     e.target.files?.[0] &&
                     updateAvatarMutation.mutate(e.target.files[0])
@@ -129,11 +190,7 @@ export const ProfileInfo = ({
           {/* Actions */}
           <div className="flex items-center gap-2 pb-1">
             {isOwn ? (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => openEdit()}
-              >
+              <Button size="sm" variant="outline" onClick={() => openEdit()}>
                 Chỉnh sửa trang cá nhân
               </Button>
             ) : (
@@ -186,51 +243,6 @@ export const ProfileInfo = ({
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
       />
-
-      {/* Edit sheet */}
-      <Sheet open={editOpen} onOpenChange={setEditOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-sm">
-          <SheetHeader>
-            <SheetTitle>Chỉnh sửa trang cá nhân</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-4 p-4">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Username</label>
-              <Input
-                value={editUsername}
-                onChange={(e) => setEditUsername(e.target.value)}
-                maxLength={20}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Bio</label>
-              <textarea
-                value={editBio}
-                onChange={(e) => setEditBio(e.target.value)}
-                maxLength={200}
-                rows={4}
-                className="w-full border rounded-xl px-3 py-2 text-sm resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-                placeholder="Giới thiệu bản thân..."
-              />
-              <p className="text-xs text-muted-foreground text-right">
-                {editBio.length}/200
-              </p>
-            </div>
-            <Button
-              className="w-full"
-              onClick={() =>
-                editProfileMutation.mutate({
-                  username: editUsername,
-                  bio: editBio,
-                })
-              }
-              disabled={editProfileMutation.isPending}
-            >
-              {editProfileMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
     </>
   );
 };

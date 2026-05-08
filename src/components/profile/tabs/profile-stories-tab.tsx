@@ -4,18 +4,9 @@ import { Play, Trash2 } from "lucide-react";
 import { storiesApi } from "../../../services/api-services";
 import { useInfiniteScroll } from "../../../hooks/use-infinite-scroll";
 import { StoryViewer } from "../../story/story-viewer";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../../ui/alert-dialog";
 import type { FriendshipStatus, Story, StoryGroup } from "../../../types";
 import { useDeleteStoryMutation } from "../../../hooks/use-story-mutations";
+import { useAlertDialogStore } from "../../../stores/alert-dialog-store";
 
 interface Props {
   userId: string;
@@ -106,7 +97,7 @@ export const ProfileStoriesTab = ({
 }: Props) => {
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerInitIndex, setViewerInitIndex] = useState(0);
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const { show } = useAlertDialogStore();
 
   const {
     data: myStoriesData,
@@ -154,13 +145,24 @@ export const ProfileStoriesTab = ({
         }
       : null;
 
-  const deleteStoryMutation = useDeleteStoryMutation({
-    onSuccess: () => setDeleteTarget(null),
-  });
+  const deleteStoryMutation = useDeleteStoryMutation();
 
   const openViewer = (i: number) => {
     setViewerInitIndex(i);
     setViewerOpen(true);
+  };
+
+  const handleDelete = (storyId: string) => {
+    show({
+      title: "Xóa story?",
+      description: "Story này sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+      confirmLabel: deleteStoryMutation.isPending ? "Đang xóa..." : "Xóa story",
+      cancelLabel: "Giữ lại",
+      variant: "destructive",
+      onConfirm: () => {
+        deleteStoryMutation.mutate(storyId);
+      },
+    });
   };
 
   if (isOwn) {
@@ -180,7 +182,7 @@ export const ProfileStoriesTab = ({
               story={s}
               index={i}
               onView={openViewer}
-              onDelete={setDeleteTarget}
+              onDelete={handleDelete}
             />
           ))}
         </div>
@@ -200,32 +202,6 @@ export const ProfileStoriesTab = ({
             initialGroupIndex={viewerInitIndex}
           />
         )}
-
-        <AlertDialog
-          open={!!deleteTarget}
-          onOpenChange={(o) => !o && setDeleteTarget(null)}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Xoá story?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Story sẽ bị xoá vĩnh viễn.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Huỷ</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-destructive hover:bg-destructive/90"
-                onClick={() =>
-                  deleteTarget && deleteStoryMutation.mutate(deleteTarget)
-                }
-                disabled={deleteStoryMutation.isPending}
-              >
-                Xoá
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </>
     );
   }
