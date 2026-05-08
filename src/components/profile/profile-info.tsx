@@ -32,6 +32,62 @@ function StatItem({ count, label }: { count: number; label: string }) {
   );
 }
 
+function EditProfileForm({
+  profile,
+  onSave,
+  onCancel,
+}: {
+  profile: User;
+  onSave: (data: { username: string; bio: string }) => void;
+  onCancel: () => void;
+}) {
+  const [username, setUsername] = useState(profile.username);
+  const [bio, setBio] = useState(profile.bio ?? "");
+
+  const editProfileMutation = useEditProfileMutation({
+    profile,
+    onSuccess: () => onSave({ username, bio }),
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">Username</label>
+        <Input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          maxLength={20}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">Bio</label>
+        <textarea
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          maxLength={200}
+          rows={4}
+          className="w-full border rounded-xl px-3 py-2 text-sm resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+          placeholder="Giới thiệu bản thân..."
+        />
+        <p className="text-xs text-muted-foreground text-right">
+          {bio.length}/200
+        </p>
+      </div>
+      <div className="flex justify-end gap-2 w-full">
+        <Button variant="outline" onClick={onCancel}>
+          Huỷ
+        </Button>
+        <Button
+          onClick={() => editProfileMutation.mutate({ username, bio })}
+          disabled={editProfileMutation.isPending}
+        >
+          {editProfileMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export const ProfileInfo = ({
   profile,
   isOwn,
@@ -41,16 +97,9 @@ export const ProfileInfo = ({
 }: Props) => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const { show, hide } = useDialogStore();
-  const [editUsername, setEditUsername] = useState(profile.username);
-  const [editBio, setEditBio] = useState(profile.bio ?? "");
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const updateAvatarMutation = useUpdateAvatarMutation(profile.id);
-
-  const editProfileMutation = useEditProfileMutation({
-    profile,
-    onSuccess: () => onRefresh(),
-  });
 
   const followMutation = useFollowMutation({
     profileId: profile.id,
@@ -59,71 +108,18 @@ export const ProfileInfo = ({
   });
 
   const openEdit = () => {
-    setEditUsername(profile.username);
-    setEditBio(profile.bio ?? "");
-
     show({
       title: "Chỉnh sửa trang cá nhân",
-
       content: (
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">Username</label>
-
-            <Input
-              value={editUsername}
-              onChange={(e) => setEditUsername(e.target.value)}
-              maxLength={20}
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">Bio</label>
-
-            <textarea
-              value={editBio}
-              onChange={(e) => setEditBio(e.target.value)}
-              maxLength={200}
-              rows={4}
-              className="w-full border rounded-xl px-3 py-2 text-sm resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-              placeholder="Giới thiệu bản thân..."
-            />
-
-            <p className="text-xs text-muted-foreground text-right">
-              {editBio.length}/200
-            </p>
-          </div>
-        </div>
+        <EditProfileForm
+          profile={profile}
+          onSave={() => {
+            hide();
+            onRefresh();
+          }}
+          onCancel={hide}
+        />
       ),
-
-      footer: (
-        <div className="flex justify-end gap-2 w-full">
-          <Button variant="outline" onClick={hide}>
-            Huỷ
-          </Button>
-
-          <Button
-            onClick={() =>
-              editProfileMutation.mutate(
-                {
-                  username: editUsername,
-                  bio: editBio,
-                },
-                {
-                  onSuccess: () => {
-                    hide();
-                    onRefresh();
-                  },
-                },
-              )
-            }
-            disabled={editProfileMutation.isPending}
-          >
-            {editProfileMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
-          </Button>
-        </div>
-      ),
-
       className: "sm:max-w-md",
     });
   };
@@ -132,7 +128,6 @@ export const ProfileInfo = ({
     <>
       <div className="bg-card border rounded-xl p-4 -mt-16 pt-0 relative">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          {/* Avatar */}
           <div className="relative -mt-10 sm:-mt-12 mb-2 w-fit">
             <div
               className={cn(
@@ -189,7 +184,7 @@ export const ProfileInfo = ({
 
           <div className="flex items-center gap-2 pb-1">
             {isOwn ? (
-              <Button size="sm" variant="outline" onClick={() => openEdit()}>
+              <Button size="sm" variant="outline" onClick={openEdit}>
                 Chỉnh sửa trang cá nhân
               </Button>
             ) : (
