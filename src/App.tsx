@@ -27,6 +27,7 @@ import SettingsPage from "./pages/settings-page";
 import NotFoundPage from "./pages/not-found-page";
 import { AlertDialogProvider } from "./providers/alert-dialog-provider";
 import { DialogProvider } from "./providers/dialog-provider";
+import { ColorSchemeApplier } from "./components/color-scheme-applier";
 
 export default function App() {
   return (
@@ -92,6 +93,7 @@ export default function App() {
           </AppBootstrap>
         </BrowserRouter>
 
+        <ColorSchemeApplier />
         <AlertDialogProvider />
         <DialogProvider />
         <Toaster position="top-right" richColors closeButton duration={3500} />
